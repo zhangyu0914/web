@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 用户信息 -->
+<mapper namespace="com.yw.webplatform.mapper.UsersRolesUsersEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersRolesUsersEntity" id="resultMapRolesUsers">
+		<id property="tid" column="TID"/>					<!-- ID -->
+		<result property="createTime" column="CREATE_TIME"/>		<!-- 创建时间 -->
+		<!-- 查询客户,根据外键的T_CUSTOMER_ID字段来查询记录 -->
+		<association property="users" column="T_USERS_TID" 
+							javaType="com.yw.common.beansUtils.entity.UserInfoEntity"
+							select="findUsers"> 			<!-- 用户ID -->
+		</association>
+		
+		<!-- 查询流程组,根据外键的T_FLOW_GROUP_ID字段来查询记录 -->
+		<association property="roles" column="T_ROLES_TID" 
+							javaType="com.yw.common.beansUtils.entity.UsersRolesEntity"
+							select="findRoles">			<!-- 角色ID -->
+		</association>
+	</resultMap>
+	
+	<!-- 用户 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UserInfoEntity" id="resultMapUsers">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		<result property="userAccount" column="USER_ACCOUNT"/>	<!-- 用户名 -->
+		<result property="userPwd" column="USER_PWD"/>	<!-- 密码 -->
+		<result property="userSalt" column="USER_SALT"/>	<!-- 加盐 -->
+		<result property="userState" column="USER_STATE"/>	<!-- 账户状态 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+	</resultMap>
+	
+	<!-- 角色 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersRolesEntity" id="resultMapRoles">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="roleName" column="ROLE_NAME"/>	<!-- 角色名称 -->
+		<result property="roleCode" column="ROLE_CODE"/>	<!-- 角色编码 -->
+		<result property="roleDescribe" column="ROLE_DESCRIBE"/>	<!-- 角色描述 -->
+		<result property="state" column="STATE"/>	<!-- 所属平台 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+	</resultMap>
+	
+	<!-- 查询时，把常用的字段抽出来进行公用，尽量减少开发员的工作量 -->
+	<sql id="SELECT_PARAMS_ROLESUSERS">
+		MURU.TID,
+		MURU.T_USERS_TID,
+		MURU.T_ROLES_TID,
+		MURU.CREATE_TIME,
+		MURU.UPDATE_TIME
+	</sql>
+	<sql id="SELECT_USERS">
+		MU.TID,
+		MU.USER_ACCOUNT,
+		MU.USER_PWD,
+		MU.USER_SALT,
+		MU.USER_STATE,
+		MU.CREATE_TIME,
+		MU.UPDATE_TIME
+	</sql>
+	
+	<sql id="SELECT_ROLES">
+		MUR.TID,
+		MUR.ROLE_NAME,
+		MUR.ROLE_CODE,
+		MUR.ROLE_DESCRIBE,
+		MUR.STATE,
+		MUR.CREATE_TIME,
+		MUR.UPDATE_TIME
+	</sql>
+
+     <!-- 根据条件，查询多条数据 -->
+     <select id="findAll" parameterType="com.yw.common.beansUtils.entity.UsersRolesUsersEntity" resultMap="resultMapRolesUsers">  
+         SELECT
+         
+         	<include refid="SELECT_PARAMS_ROLESUSERS"/>
+         	
+         FROM T_USERS_ROLES_USERS MURU 
+         LEFT JOIN T_USER_INFO MU ON(MURU.T_USERS_TID = MU.TID) 
+         LEFT JOIN T_USERS_ROLES TR ON(MURU.T_ROLES_TID = TR.TID)
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	          <if test="tid != null and tid != '' ">
+	         	 MURU.TID = #{tid}
+	          </if>
+	          <if test="tUsersTid != null and tUsersTid != '' ">
+				AND MURU.T_USERS_TID LIKE '%${tUsersTid}%'
+			 </if>
+			 <if test="tRolesTid != null and tRolesTid != '' ">
+				AND MURU.T_ROLES_TID LIKE '%${tRolesTid}%'
+			 </if>
+        </trim>
+        ORDER BY CREATE_TIME DESC
+    </select>
+   
+   <!-- 获取数量 -->
+	<select id="getCount" parameterType="com.yw.common.beansUtils.entity.UsersRolesUsersEntity" resultType="int">
+		 SELECT 
+			COUNT(1)
+		 FROM T_USERS_ROLES_USERS MURU 
+         LEFT JOIN T_USER_INFO MU ON(MURU.T_USERS_TID = MU.TID) 
+         LEFT JOIN T_USERS_ROLES TR ON(MURU.T_ROLES_TID = TR.TID)
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	          <if test="tid != null and tid != '' ">
+	         	 MURU.TID = #{tid}
+	          </if>
+	          <if test="tUsersTid != null and tUsersTid != '' ">
+				AND MURU.T_USERS_TID LIKE '%${tUsersTid}%'
+			 </if>
+			 <if test="tRolesTid != null and tRolesTid != '' ">
+				AND MURU.T_ROLES_TID LIKE '%${tRolesTid}%'
+			 </if>
+        </trim>
+	</select>
+   <!-- 查询用户 -->
+    <select id="findUsers" parameterType="java.lang.String" resultMap="resultMapUsers">  
+         SELECT
+         	<include refid="SELECT_USERS"/>
+         FROM T_USER_INFO MU
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         		AND MU.TID = #{value}
+        </trim>
+    </select>
+    
+    <!-- 查询角色 -->
+    <select id="findRoles" parameterType="java.lang.String" resultMap="resultMapRoles">  
+         SELECT         
+         	<include refid="SELECT_ROLES"/>
+         FROM T_USERS_ROLES MUR
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         		AND MUR.TID = #{value}
+        </trim>
+    </select>
+   
+   <!-- 添加 -->
+   <insert id="insert" parameterType="com.yw.common.beansUtils.entity.UsersRolesUsersEntity">
+   		INSERT INTO T_USERS_ROLES_USERS(
+   		
+	   		 TID,
+	   		 T_USERS_TID,
+	         T_ROLES_TID,
+	       	 CREATE_TIME
+	       	 
+   		)VALUES(
+   		
+   			#{tid}, 
+   			#{tUsersTid}, 
+   			#{tRolesTid}, 
+   			sysdate()
+   		)
+   </insert>  
+   
+   <!-- 删除用户 -->
+   <delete id="delete" parameterType="com.yw.common.beansUtils.entity.UsersRolesUsersEntity">
+   		DELETE FROM T_USERS_ROLES_USERS
+   		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+   			AND T_USERS_TID = #{value}
+   		</trim>
+   </delete>
+   
+   <delete id="deleteByFK" parameterType="com.yw.common.beansUtils.entity.UsersRolesUsersEntity">
+   		DELETE FROM T_USERS_ROLES_USERS
+   		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+   			AND T_ROLES_TID = #{tRolesTid}
+   		</trim>
+   </delete>
+</mapper>

@@ -1,0 +1,14 @@
+package com.yw.common.beansUtils.utils;
+
+public enum MsgCodeEnum {
+
+	DOCTOR_REGISTER,
+	DOCTOR_APPLY_AUTH,
+	DOCTOR_IMPORT_SUCCESS,
+	
+	PATIENT_REGISTER,
+	PATIENT_IMPORT_SUCCESS,
+	PATIENT_APPLY_SERVICE,
+	PATIENT_PAY_SERVICE
+	
+}

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 厂商 -->
+<mapper namespace="com.yw.webplatform.mapper.TradeEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.TradeEntity" id="resultMapTrade">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="tradeName" column="TRADE_NAME"/>	<!-- 厂商名称 -->
+		<result property="tradeCode" column="TRADE_CODE"/>	<!-- 厂商代码 -->
+		<result property="address" column="ADDRESS"/>	<!-- 地址 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_TRADE">
+		
+		TT.TID,
+		TT.TRADE_NAME,
+		TT.TRADE_CODE,
+		TT.ADDRESS,
+		TT.CREATE_TIME,
+		TT.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.TradeEntity" resultMap="resultMapTrade">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_TRADE"/>
+         FROM T_TRADE TT
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TT.TID = #{tid}
+			</if>
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				AND TT.TRADE_NAME = #{tradeName}
+			</if>
+			<if test="tradeCode != null and tradeCode != '' ">	<!-- 厂商代码 -->
+				AND TT.TRADE_CODE = #{tradeCode}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				AND TT.ADDRESS = #{address}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TT.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TT.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TT.CREATE_TIME DESC, TT.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.TradeEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_TRADE TT
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TT.TID = #{tid}
+			</if>
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				AND TT.TRADE_NAME = #{tradeName}
+			</if>
+			<if test="tradeCode != null and tradeCode != '' ">	<!-- 厂商代码 -->
+				AND TT.TRADE_CODE = #{tradeCode}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				AND TT.ADDRESS = #{address}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TT.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TT.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.TradeEntity">
+    	INSERT INTO T_TRADE(
+    		
+			TID,
+			TRADE_NAME,
+			TRADE_CODE,
+			ADDRESS,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{tradeName},
+			#{tradeCode},
+			#{address},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.TradeEntity">
+	   UPDATE T_TRADE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				,TRADE_NAME = #{tradeName}
+			</if>
+			<if test="tradeCode != null and tradeCode != '' ">	<!-- 厂商代码 -->
+				,TRADE_CODE = #{tradeCode}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				,ADDRESS = #{address}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_TRADE WHERE TID = #{value}
+    </delete>
+</mapper>

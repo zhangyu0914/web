@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 报警表 -->
+<mapper namespace="com.yw.webplatform.mapper.WarningEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.WarningEntity" id="resultMapWarning">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="sn" column="SN"/>	<!-- 设备外键ID -->
+		<result property="content" column="CONTENT"/>	<!-- 内容 -->
+		<result property="deviceType" column="DEVICE_TYPE"/>	<!-- 设备类型 -->
+		<result property="waStatus" column="WA_STATUS"/>	<!-- 警告状态 -->
+		<result property="waType" column="WA_TYPE"/>	<!-- 报警类型 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="eqName" column="EQ_NAME"/>	<!-- 设备名称 -->
+		<result property="eqStatus" column="EQ_STATUS"/>	<!-- 设备状态 -->
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_WARNING">
+		
+		TW.TID,
+		TW.SN,
+		TW.CONTENT,
+		TW.DEVICE_TYPE,
+		TW.WA_STATUS,
+		TW.WA_TYPE,
+		TW.REMARK,
+		TW.CREATE_TIME,
+		TW.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.WarningEntity" resultMap="resultMapWarning">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_WARNING"/>,
+         	TSL.EQ_NAME
+         FROM T_WARNING TW
+         LEFT JOIN T_SN_LIST TSL ON (TW.DEVICE_TYPE=TSL.DEVICE_TYPE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         
+        	AND TW.WA_STATUS = 0
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TW.TID = #{tid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- 设备外键ID -->
+				AND TW.SN = #{sn}
+			</if>
+			<if test="content != null and content != '' ">	<!-- 内容 -->
+				AND TW.CONTENT = #{content}
+			</if>
+			<if test="deviceType != null ">	<!-- 设备类型 -->
+				AND TW.DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="waType != null ">	<!-- 报警类型 -->
+				AND TW.WA_TYPE = #{waType}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TW.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TW.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TW.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				AND TSL.EQ_TYPE = #{eqType}
+			</if>
+         </trim>
+         ORDER BY TW.CREATE_TIME DESC, TW.WA_STATUS ASC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.WarningEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_WARNING TW
+         LEFT JOIN T_SN_LIST TSL ON (TW.DEVICE_TYPE=TSL.DEVICE_TYPE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         
+        	AND TW.WA_STATUS = 0
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TW.TID = #{tid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- 设备外键ID -->
+				AND TW.SN = #{sn}
+			</if>
+			<if test="content != null and content != '' ">	<!-- 内容 -->
+				AND TW.CONTENT = #{content}
+			</if>
+			<if test="deviceType != null ">	<!-- 设备类型 -->
+				AND TW.DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="waType != null ">	<!-- 报警类型 -->
+				AND TW.WA_TYPE = #{waType}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TW.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TW.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TW.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				AND TSL.EQ_TYPE = #{eqType}
+			</if>
+         </trim>
+    </select>
+ 
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.WarningEntity">
+    	INSERT INTO T_WARNING(
+    		
+			TID,
+			SN,
+			CONTENT,
+			DEVICE_TYPE,
+			WA_STATUS,
+			WA_TYPE,
+			REMARK,
+			EVENT_TIME,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{sn},
+			#{content},
+			#{deviceType},
+			#{waStatus},
+			IFNULL(#{waType},0),
+			#{remark},
+			#{eventTime},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.WarningEntity">
+	   UPDATE T_WARNING
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="sn != null and sn != '' ">	<!-- 设备外键ID -->
+				,SN = #{sn}
+			</if>
+			<if test="content != null and content != '' ">	<!-- 内容 -->
+				,CONTENT = #{content}
+			</if>
+			<if test="deviceType != null ">	<!-- 设备类型 -->
+				,DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="waStatus != null ">	<!-- 警告状态 -->
+				,WA_STATUS = #{waStatus}
+			</if>
+			<if test="waType != null ">	<!-- 报警类型 -->
+				,WA_TYPE = #{waType}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_WARNING WHERE TID = #{value}
+    </delete>
+    
+    <select id="getWarningCount" parameterType="com.yw.common.beansUtils.entity.WarningEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_WARNING TW
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+				AND TW.WA_STATUS = 0
+				<if test="eqType != null ">	<!-- 设备类型 -->
+					AND DEVICE_TYPE IN (SELECT DEVICE_TYPE FROM T_SN_LIST WHERE EQ_TYPE = #{eqType})
+				</if>
+         </trim>
+    </select>
+</mapper>

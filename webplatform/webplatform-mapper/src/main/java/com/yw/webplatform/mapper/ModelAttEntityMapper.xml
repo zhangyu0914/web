@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 设备型号与属性表 -->
+<mapper namespace="com.yw.webplatform.mapper.ModelAttEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ModelAttEntity" id="resultMapModelAtt">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkModelTid" column="FK_MODEL_TID"/>	<!-- 型号外键ID -->
+		<result property="profileId" column="PROFILE_ID"/>	<!-- PROFILE_ID -->
+		<result property="propName" column="PROP_NAME"/>	<!-- PROFILE名称 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="attKey" column="ATT_KEY"/>	<!--  -->
+		<result property="attValue" column="ATT_VALUE"/>	<!--  -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MODELATT">
+		
+		TMA.TID,
+		TMA.FK_MODEL_TID,
+		TMA.PROFILE_ID,
+		TMA.PROP_NAME,
+		TMA.CREATE_TIME,
+		TMA.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.ModelAttEntity" resultMap="resultMapModelAtt">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MODELATT"/>
+         FROM T_MODEL_ATT TMA
+         LEFT JOIN T_ATTRIBUTE TA ON (TMA.PROFILE_ID = TA.PROFILE_ID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TMA.TID = #{tid}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键ID -->
+				AND TMA.FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!-- PROFILE_ID -->
+				AND TMA.PROFILE_ID = #{profileId}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TMA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TMA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TMA.CREATE_TIME DESC, TMA.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.ModelAttEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_MODEL_ATT TMA
+         LEFT JOIN T_ATTRIBUTE TA ON (TMA.PROFILE_ID = TA.PROFILE_ID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TMA.TID = #{tid}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键ID -->
+				AND TMA.FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!-- PROFILE_ID -->
+				AND TMA.PROFILE_ID = #{profileId}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TMA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TMA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.ModelAttEntity">
+    	INSERT INTO T_MODEL_ATT(
+    		
+			TID,
+			FK_MODEL_TID,
+			PROFILE_ID,
+			PROP_NAME,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkModelTid},
+			#{profileId},
+			#{propName},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.ModelAttEntity">
+	   UPDATE T_MODEL_ATT
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键ID -->
+				,FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!-- PROFILE_ID -->
+				,PROFILE_ID = #{profileId}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_MODEL_ATT WHERE TID = #{value}
+    </delete>
+    
+    <!-- 根据外键删除 -->
+    <delete id="deleteByFK" parameterType="java.lang.String">
+    	DELETE FROM T_MODEL_ATT 
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+   		 	<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键ID -->
+				AND FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!-- 属性外键ID -->
+				AND PROFILE_ID = #{profileId}
+			</if>
+   		</trim>
+    </delete>
+</mapper>

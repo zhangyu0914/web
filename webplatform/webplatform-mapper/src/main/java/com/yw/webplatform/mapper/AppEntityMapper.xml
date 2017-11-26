@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 应用表 -->
+<mapper namespace="com.yw.webplatform.mapper.AppEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppEntity" id="resultMapApp">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="appId" column="APP_ID"/>	<!-- APPID -->
+		<result property="appName" column="APP_NAME"/>	<!-- 应用名称 -->
+		<result property="appVersion" column="APP_VERSION"/>	<!-- 机构版本 -->
+		<result property="orgCode" column="ORG_CODE"/>	<!-- 机构编码 -->
+		<result property="appStatus" column="APP_STATUS"/>	<!-- 应用名称 -->
+		<result property="icon" column="ICON"/>	<!-- 图标URL -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="sn" column="SN"/>	<!-- SN -->
+		<result property="eqName" column="EQ_NAME"/>	<!-- 设备名称 -->
+		<result property="attType" column="ATT_TYPE"/>	<!--  -->
+		<result property="attName" column="ATT_NAME"/>	<!--  -->
+		<result property="function" column="FUNCTION"/>	<!--  -->
+		<result property="modelNo" column="MODEL_NO"/>	<!--  -->
+		<result property="modelCode" column="MODEL_CODE"/>	<!--  -->
+		<result property="modelName" column="MODEL_NAME"/>	<!--  -->
+		<result property="tradeName" column="TRADE_NAME"/>	<!--  -->
+		<result property="tradeCode" column="TRADE_CODE"/>	<!--  -->
+		<result property="inputData" column="INPUT_DATA"/>	<!-- 输入数据 -->
+		<result property="outputData" column="OUTPUT_DATA"/>	<!-- 输出数据 -->
+		<result property="dateHour" column="DATE_HOUR"/>	<!-- 小时 -->
+		<result property="flow" column="FLOW"/>	<!--  -->
+		<result property="ep" column="EP"/>	<!--  -->
+		<result property="appCount" column="APPCOUNT"/>	<!--  -->
+		<result property="orgName" column="ORGNAME"/>	<!--  -->
+		<result property="modelVersion" column="MODEL_VERSION"/>	<!-- 型号版本号 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APP">
+		
+		TA.TID,
+		TA.APP_ID,
+		TA.APP_NAME,
+		TA.APP_VERSION,
+		TA.ORG_CODE,
+		TA.APP_STATUS,
+		TA.ICON,
+		TA.CREATE_TIME,
+		TA.UPDATE_TIME
+
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_IODATA">
+		
+		TID.TID,
+		TID.DATA_CODE,
+		TID.DATA_VALUE,
+		TID.INPUT_DATA,
+		TID.OUTPUT_DATA,
+		TID.DATA_TIME,
+		TID.REAMRK,
+		TID.CREATE_TIME,
+		TID.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultMap="resultMapApp">  
+         SELECT 
+         
+         	<include refid="SELECT_PARAMS_APP"/>
+         	
+         FROM T_APP TA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND TA.APP_ID = #{appId}
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND TA.APP_NAME = #{appName}
+			</if>
+			<if test="appVersion != null ">	<!-- 应用版本 -->
+				AND TA.APP_VERSION = #{appVersion}
+			</if>
+			<if test="icon != null and icon != '' ">	<!-- 图标URL -->
+				AND TA.ICON = #{icon}
+			</if>
+			<if test="appStatus != null ">	<!-- 应用状态 -->
+				AND TA.APP_STATUS = #{appStatus}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TA.CREATE_TIME DESC, TA.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP TA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND TA.APP_ID = #{appId}
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND TA.APP_NAME = #{appName}
+			</if>
+			<if test="appVersion != null ">	<!-- 应用版本 -->
+				AND TA.APP_VERSION = #{appVersion}
+			</if>
+			<if test="icon != null and icon != '' ">	<!-- 图标URL -->
+				AND TA.ICON = #{icon}
+			</if>
+			<if test="appStatus != null ">	<!-- 应用状态 -->
+				AND TA.APP_STATUS = #{appStatus}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+    
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AppEntity">
+    	INSERT INTO T_APP(
+    		
+			TID,
+			APP_ID,
+			APP_NAME,
+			APP_VERSION,
+			ORG_CODE,
+			APP_STATUS,
+			ICON,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{appId},
+			#{appName},
+			#{appVersion},
+			#{orgCode},
+			IFNULL(#{appStatus},0),
+			#{icon},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AppEntity">
+	   UPDATE T_APP
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				,APP_ID = #{appId}
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				,APP_NAME = #{appName}
+			</if>
+			<if test="icon != null and icon != '' ">	<!-- 图标URL -->
+				,ICON = #{icon}
+			</if>
+			<if test="appStatus != null ">	<!-- 应用状态 -->
+				,APP_STATUS = #{appStatus}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_APP WHERE TID = #{value}
+    </delete>
+    
+    <!-- APP拥有设备的权限 -->
+    <select id="findAppFunction" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultMap="resultMapApp">  
+        SELECT 
+         
+         TAF.TID,
+         TM.MODEL_CODE,
+	     TM.MODEL_NAME,
+	     TM.MODEL_VERSION,
+		 TAF.FLOW,
+		 IFNULL((SELECT CONCAT(EP_NAME,'[',EP,']') FROM T_MODEL_EP WHERE FK_MODEL_TID in (SELECT MODEL_NO FROM T_MODEL WHERE MODEL_NO= TAF.MODEL_NO) AND PROP_ID = TAF.PROFILE_ID AND EP = TAF.EP),'') as EP,
+		 TAF.PROFILE_ID  AS `FUNCTION`,
+		 TR.TRADE_CODE,
+		 TR.TRADE_NAME
+         	
+         FROM T_APP_FUNCTION TAF
+ 	 	 LEFT JOIN T_ATTRIBUTE TATTR ON (TAF.PROFILE_ID = TATTR.PROFILE_ID)
+         LEFT JOIN T_MODEL TM ON (TAF.MODEL_NO = TM.MODEL_NO)
+	     LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAF.FK_APP_TID IN (SELECT TID FROM T_APP WHERE APP_ID IN (SELECT APP_ID FROM T_APP_LICENSE WHERE TID = #{tid}))
+         </trim>
+         ORDER BY TAF.MODEL_NO DESC, TAF.TID
+    </select>
+    
+    <select id="getCountAppFunction" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultType="int">  
+        SELECT 
+         
+         	COUNT(1) AS COUNT
+         	
+         FROM T_APP_FUNCTION TAF
+ 	 	 LEFT JOIN T_ATTRIBUTE TATTR ON (TAF.PROFILE_ID = TATTR.PROFILE_ID)
+         LEFT JOIN T_MODEL TM ON (TAF.MODEL_NO = TM.MODEL_NO)
+	     LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAF.FK_APP_TID IN (SELECT TID FROM T_APP WHERE APP_ID IN (SELECT APP_ID FROM T_APP_LICENSE WHERE TID = #{tid}))
+         </trim>
+    </select>
+    
+    <select id="findPlatformReport" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultMap="resultMapApp">  
+    SELECT SUM(INPUT_DATA) AS INPUT_DATA, SUM(OUTPUT_DATA) AS OUTPUT_DATA, DATE_HOUR
+    FROM(
+        SELECT 
+         
+         	<include refid="SELECT_PARAMS_IODATA"/>,
+         	DATE_FORMAT(DATA_TIME,'%H:00') AS DATE_HOUR
+         	
+        FROM T_IO_DATA TID
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+        	AND TID.DATA_CODE IN ('APP','DEVICE','PLATFORM')
+        	AND DATE_FORMAT(TID.DATA_TIME,'%Y%M%D') = DATE_FORMAT(SYSDATE(),'%Y%M%D')
+
+         </trim>
+         ORDER BY TID.DATA_TIME ASC
+        ) TT GROUP BY DATE_HOUR
+    </select>
+    
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findApp" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultMap="resultMapApp">  
+         SELECT 
+         	TOO.ORG_NAME AS ORGNAME,
+         	TA.APP_NAME,
+			TA.APP_ID,
+			TA.APP_VERSION,
+			(SELECT COUNT(1) FROM T_APP_LICENSE TAL WHERE TAL.APP_ID = TA.APP_ID) AS APPCOUNT
+         FROM T_APP TA
+         LEFT JOIN T_ORGANIZATION TOO ON (TA.ORG_CODE = TOO.ORG_CODE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND UPPER(TA.APP_ID) LIKE UPPER('%${appId}%')
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND TA.APP_NAME = #{appName}
+			</if>
+			<if test="appVersion != null ">	<!-- 应用版本 -->
+				AND TA.APP_VERSION = #{appVersion}
+			</if>
+			<if test="icon != null and icon != '' ">	<!-- 图标URL -->
+				AND TA.ICON = #{icon}
+			</if>
+			<if test="appStatus != null ">	<!-- 应用状态 -->
+				AND TA.APP_STATUS = #{appStatus}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="orgName != null and orgName!=''">	<!-- 机构名称 -->
+				AND TOO.ORG_NAME = #{orgName}
+			</if>
+         </trim>
+         ORDER BY TA.CREATE_TIME DESC, TA.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCountApp" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP TA
+         LEFT JOIN T_ORGANIZATION TOO ON (TA.ORG_CODE = TOO.ORG_CODE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND UPPER(TA.APP_ID) LIKE UPPER('%${appId}%')
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND TA.APP_NAME = #{appName}
+			</if>
+			<if test="appVersion != null ">	<!-- 应用版本 -->
+				AND TA.APP_VERSION = #{appVersion}
+			</if>
+			<if test="icon != null and icon != '' ">	<!-- 图标URL -->
+				AND TA.ICON = #{icon}
+			</if>
+			<if test="appStatus != null ">	<!-- 应用状态 -->
+				AND TA.APP_STATUS = #{appStatus}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="orgName != null and orgName!=''">	<!-- 机构名称 -->
+				AND TOO.ORG_NAME = #{orgName}
+			</if>
+         </trim>
+    </select>
+    
+    <!-- 根据条件，查询所有应用名称 -->
+    <select id="findAllAppName" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultMap="resultMapApp">  
+         SELECT 
+         	DISTINCT TA.APP_NAME
+         FROM T_APP TA
+         
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND UPPER(TA.APP_ID) LIKE UPPER('%${appId}%')
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND TA.APP_NAME = #{appName}
+			</if>
+			<if test="appVersion != null ">	<!-- 应用版本 -->
+				AND TA.APP_VERSION = #{appVersion}
+			</if>
+			<if test="icon != null and icon != '' ">	<!-- 图标URL -->
+				AND TA.ICON = #{icon}
+			</if>
+			<if test="appStatus != null ">	<!-- 应用状态 -->
+				AND TA.APP_STATUS = #{appStatus}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+         </trim>
+         ORDER BY TA.CREATE_TIME DESC, TA.TID
+    </select>
+    
+    <!-- 根据应用ID查询版本号 -->
+    <select id="findVersionByAppId" parameterType="com.yw.common.beansUtils.entity.AppEntity" resultMap="resultMapApp">  
+         SELECT 
+         	APP_VERSION
+         FROM T_APP TA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         	AND TA.APP_ID = #{appId}
+         </trim>
+     </select>
+</mapper>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 配置表 -->
+<mapper namespace="com.yw.common.mapper.MwconfigEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.MwconfigEntity" id="resultMapMwconfig">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="config_project" column="CONFIG_PROJECT"/>	<!-- 项目名称 -->
+		<result property="configClass" column="CONFIG_CLASS"/>	<!-- 配置类别 -->
+		<result property="configName" column="CONFIG_NAME"/>	<!-- 配置名称 -->
+		<result property="configValue" column="CONFIG_VALUE"/>	<!-- 配置值 -->
+		<result property="configUnit" column="CONFIG_UNIT"/>	<!-- 单位 -->
+		<result property="configDname" column="CONFIG_DNAME"/>	<!-- 配置项中文名称 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="readOnly" column="READ_ONLY"/>	<!-- 只读,0:READ:只读,1:WRITE:可写 -->
+		<result property="typeContent" column="TYPE_CONTENT"/>	<!-- 类型内容 -->
+		<result property="configType" column="CONFIG_TYPE"/>	<!-- 配置类型 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.MwCfgEntity" id="resultMapConfig">
+	
+		<result property="config_project" column="CONFIG_PROJECT"/>	<!-- 项目名称 -->
+		<result property="config_class" column="CONFIG_CLASS"/>	<!-- 配置类别 -->
+		<result property="config_name" column="CONFIG_NAME"/>	<!-- 配置名称 -->
+		<result property="config_value" column="CONFIG_VALUE"/>	<!-- 配置值 -->
+		<result property="config_unit" column="CONFIG_UNIT"/>	<!-- 单位 -->
+		<result property="config_dname" column="CONFIG_DNAME"/>	<!-- 配置项中文名称 -->
+		<result property="read_only" column="READ_ONLY"/>	<!-- 只读,0:READ:只读,1:WRITE:可写 -->
+		<result property="type_content" column="TYPE_CONTENT"/>	<!-- 类型内容 -->
+		<result property="config_type" column="CONFIG_TYPE"/>	<!-- 配置类型 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="create_time" column="CREATE_TIME"/>	<!-- 创建时间 -->
+	</resultMap>
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MWCONFIG">
+		
+		TM.TID,
+		TM.CONFIG_PROJECT,
+		TM.CONFIG_CLASS,
+		TM.CONFIG_NAME,
+		TM.CONFIG_VALUE,
+		TM.CONFIG_UNIT,
+		TM.CONFIG_DNAME,
+		TM.REMARK,
+		TM.READ_ONLY,
+		TM.TYPE_CONTENT,
+		TM.CONFIG_TYPE,
+		TM.CREATE_TIME,
+		TM.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.MwconfigEntity" resultMap="resultMapMwconfig">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MWCONFIG"/>
+         FROM T_MWCONFIG TM
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TM.TID = #{tid}
+			</if>
+			<if test="config_project != null and config_project != '' ">	<!-- 配置名称 -->
+				AND TM.CONFIG_PROJECT = #{config_project}
+			</if>
+			<if test="configClass != null and configClass != '' ">	<!-- 配置类别 -->
+				AND TM.CONFIG_CLASS = #{configClass}
+			</if>
+			<if test="configName != null and configName != '' ">	<!-- 配置名称 -->
+				AND TM.CONFIG_NAME = #{configName}
+			</if>
+			<if test="configValue != null and configValue != '' ">	<!-- 配置值 -->
+				AND TM.CONFIG_VALUE = #{configValue}
+			</if>
+			<if test="configUnit != null and configUnit != '' ">	<!-- 单位 -->
+				AND TM.CONFIG_UNIT = #{configUnit}
+			</if>
+			<if test="configDname != null and configDname != '' ">	<!-- 配置项中文名称 -->
+				AND TM.CONFIG_DNAME = #{configDname}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TM.REMARK = #{remark}
+			</if>
+			<if test="readOnly != null ">	<!-- 只读,0:READ:只读,1:WRITE:可写 -->
+				AND TM.READ_ONLY = #{readOnly}
+			</if>
+			<if test="typeContent != null and typeContent != '' ">	<!-- 类型内容 -->
+				AND TM.TYPE_CONTENT = #{typeContent}
+			</if>
+			<if test="configType != null and configType != '' ">	<!-- 配置类型 -->
+				AND TM.CONFIG_TYPE = #{configType}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TM.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TM.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TM.CREATE_TIME DESC, TM.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.MwconfigEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_MWCONFIG TM
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TM.TID = #{tid}
+			</if>
+			<if test="config_project != null and config_project != '' ">	<!-- 配置名称 -->
+				AND TM.CONFIG_PROJECT = #{config_project}
+			</if>
+			<if test="configClass != null and configClass != '' ">	<!-- 配置类别 -->
+				AND TM.CONFIG_CLASS = #{configClass}
+			</if>
+			<if test="configName != null and configName != '' ">	<!-- 配置名称 -->
+				AND TM.CONFIG_NAME = #{configName}
+			</if>
+			<if test="configValue != null and configValue != '' ">	<!-- 配置值 -->
+				AND TM.CONFIG_VALUE = #{configValue}
+			</if>
+			<if test="configUnit != null and configUnit != '' ">	<!-- 单位 -->
+				AND TM.CONFIG_UNIT = #{configUnit}
+			</if>
+			<if test="configDname != null and configDname != '' ">	<!-- 配置项中文名称 -->
+				AND TM.CONFIG_DNAME = #{configDname}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TM.REMARK = #{remark}
+			</if>
+			<if test="readOnly != null ">	<!-- 只读,0:READ:只读,1:WRITE:可写 -->
+				AND TM.READ_ONLY = #{readOnly}
+			</if>
+			<if test="typeContent != null and typeContent != '' ">	<!-- 类型内容 -->
+				AND TM.TYPE_CONTENT = #{typeContent}
+			</if>
+			<if test="configType != null and configType != '' ">	<!-- 配置类型 -->
+				AND TM.CONFIG_TYPE = #{configType}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TM.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TM.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.MwconfigEntity">
+    	INSERT INTO T_MWCONFIG(
+    		
+			TID,
+			CONFIG_PROJECT,
+			CONFIG_CLASS,
+			CONFIG_NAME,
+			CONFIG_VALUE,
+			CONFIG_UNIT,
+			CONFIG_DNAME,
+			REMARK,
+			READ_ONLY,
+			TYPE_CONTENT,
+			CONFIG_TYPE,
+			CREATE_TIME,
+			UPDATE_TIME
+			
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{config_project},
+			#{configClass},
+			#{configName},
+			#{configValue},
+			#{configUnit},
+			#{configDname},
+			#{remark},
+			#{readOnly},
+			#{typeContent},
+			#{configType},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+			
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.MwconfigEntity">
+	   UPDATE T_MWCONFIG
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                    
+            <if test="config_project != null and config_project != '' ">	<!-- 配置名称 -->
+				,CONFIG_PROJECT = #{config_project}
+			</if>              
+			<if test="configClass != null and configClass != '' ">	<!-- 配置类别 -->
+				,CONFIG_CLASS = #{configClass}
+			</if>
+			<if test="configName != null and configName != '' ">	<!-- 配置名称 -->
+				,CONFIG_NAME = #{configName}
+			</if>
+			<if test="configValue != null and configValue != '' ">	<!-- 配置值 -->
+				,CONFIG_VALUE = #{configValue}
+			</if>
+			<if test="configUnit != null and configUnit != '' ">	<!-- 单位 -->
+				,CONFIG_UNIT = #{configUnit}
+			</if>
+			<if test="configDname != null and configDname != '' ">	<!-- 配置项中文名称 -->
+				,CONFIG_DNAME = #{configDname}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+			<if test="readOnly != null ">	<!-- 只读,0:READ:只读,1:WRITE:可写 -->
+				,READ_ONLY = #{readOnly}
+			</if>
+			<if test="typeContent != null and typeContent != '' ">	<!-- 类型内容 -->
+				,TYPE_CONTENT = #{typeContent}
+			</if>
+			<if test="configType != null and configType != '' ">	<!-- 配置类型 -->
+				,CONFIG_TYPE = #{configType}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_MWCONFIG WHERE TID = #{value}
+    </delete>
+    
+	<!-- 查询配置功能 -->
+	<select id="findMwConfig" resultMap="resultMapConfig">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MWCONFIG"/>
+         	
+         FROM T_MWCONFIG TM
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="array != null and array.length != 0">
+				AND TM.TID IN (
+					<foreach collection="array" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+        	</if>
+		</trim>
+	</select>
+</mapper>

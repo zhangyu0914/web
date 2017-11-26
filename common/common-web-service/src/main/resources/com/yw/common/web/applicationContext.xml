@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="  
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+    <!-- jdbc.properties文件路径  --> 
+    <bean  id="propertyConfigurer" class="com.yw.common.beansUtils.utils.spring.PropertyConfigurer"> 
+        <property name="locations" value="classpath:/com/yw/common/web/jdbc.properties" /> 
+    </bean>
+    
+    <!-- 自定义监控Druid日志 -->
+    <bean id="myStatLogger" class="com.yw.common.web.MyStatLogger"></bean>
+    <!-- 配置Spring关联监控,配置成功后,在监控界面:Spring监控可以看到具体数据 -->
+    <bean id="druid-stat-interceptor"
+	    class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
+	</bean>
+	<bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
+	    scope="prototype">
+	    <property name="patterns">
+	        <list>
+	            <value>com.yw.*.*.service.*</value><!-- 监控Service -->
+	        </list>
+	    </property>
+	</bean>
+	<aop:config>
+	    <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut" />
+	</aop:config>
+	
+ 	<bean id="log-filter" class="com.alibaba.druid.filter.logging.Log4jFilter">
+	    <property name="resultSetLogEnabled" value="false" />
+	    <property name="dataSourceLogEnabled" value="false" />
+	    <property name="connectionLogEnabled" value="false" /><!-- 所有连接相关的日志 -->
+	    <property name="connectionLogErrorEnabled" value="true" /><!-- 所有连接上发生异常的日志 -->
+	    <property name="statementExecutableSqlLogEnable" value="false" /><!-- 输出可执行的SQL -->
+	</bean>
+	<!-- 配置SQL监控,配置成功后,在监控界面:SQL监控可以看到具体数据 -->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+    	<!-- 用来配置SQL慢的标准，执行时间超过slowSqlMillis的就是慢。slowSqlMillis的缺省值为3000，也就是3秒 -->
+	    <property name="slowSqlMillis" value="10000" /><!-- 单位：毫秒 -->
+	    <!-- 显示SQL -->
+	    <property name="logSlowSql" value="true" />
+	    <!-- 合并SQL功能 -->
+	    <property name="mergeSql" value="true" />
+	</bean>
+	
+ 	<import resource="spring-mybatis.xml"/>
+ 	
+ 	 <!--  定义Quartz任务调度配置[START][注：只在主APP中定义，其他APP不需要]	-->
+    <!-- 任务定时任务 -->
+	<bean id="planQuartz" class="com.yw.common.web.PlanQuartz"/>
+	
+   
+	<!-- 定义Quartz任务调度配置[END] 	-->
+ 	
+    <context:annotation-config /> 
+    <!-- 把标记了@Controller注解的类转换为bean,如果配置错误，则不会进入controller -->
+    <!-- 自动扫描dao和service包(自动注入) --> 
+	<context:component-scan base-package="com.yw.*.*">   
+	    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />   
+	</context:component-scan>
+</beans>

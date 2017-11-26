@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 配置数据 -->
+<mapper namespace="com.yw.innerapi.mapper.ConfigapiEntityMapper">
+<!-- //////////////////////////////////型号//////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.ImportModelEntity" id="resultMapImportModel">
+		
+		<result property="id" column="ID"/>								<!-- 型号ID -->
+		<result property="name" column="NAME"/>							<!-- 型号名称 -->
+		<result property="flag" column="MODEL_FLAG"/>							<!-- 型号名称 -->
+		<result property="enterprise_code" column="TRADE_CODE"/>	<!-- 机构 -->
+		
+		<!-- 一对多 -->
+		<collection property="versions" column="TID"  select="findModelVersion" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.ModelPropertyEntity"/>
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.ModelVersionEntity" id="resultMapImportModelVersion">
+		
+		<result property="version" column="VERSION"/>					<!-- 型号版本 -->
+		
+		<!-- 一对多 -->
+		<collection property="property" column="TID"  select="findProperty" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.ModelPropertyEntity"/>
+		<collection property="config" column="TID"  select="findConfig" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.MConfigEntity"/>
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.ModelPropertyEntity" id="resultMapProperty">
+		
+		<result property="prop_id" column="PROP_ID"/>		<!-- PROFILE ID -->
+		<result property="prop_name" column="PROP_NAME"/>	<!-- 名称 -->
+
+		<collection property="eps" column="{model_no=MODEL_NO,prop_id=PROP_ID}"  select="findEp" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.ModelEpsEntity"/>
+	</resultMap>
+	
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.ModelEpsEntity" id="resultMapModelEp">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="ep" column="EP"/>	<!-- 流程 -->
+		<result property="name" column="EP_NAME"/>	<!-- 流程名称 -->
+		<result property="unit" column="UNIT"/>				<!-- 单位 -->
+		<result property="precision" column="PRECISION"/>	<!-- 精度 -->
+		<result property="flowsStr" column="FLOWS_STR"/>	<!-- 选项 -->
+
+	</resultMap>
+	
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.MConfigEntity" id="resultMapConfig">
+		
+		<result property="config_id" column="CONFIG_ID"/>	<!-- 配置ID -->
+		<result property="config_name" column="CONFIG_NAME"/>	<!-- 配置名称 -->
+		<result property="config_type" column="CONFIG_TYPE"/>	<!-- 配置类型 -->
+		<result property="flowStr" column="FLOWS"/>	<!-- 配置类型 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_IMPORT_MODEL">
+		
+		TM.TID AS TID,
+		TM.MODEL_NO AS ID,
+		TM.MODEL_NAME AS NAME,
+		TM.MODEL_FLAG,
+		TM.MODEL_VERSION AS VERSION ,
+		TM.TRADE_CODE AS TRADE_CODE
+
+	</sql>
+	<sql id="SELECT_PARAMS_PROPERTY">
+		TMA.PROFILE_ID AS PROP_ID, 
+		TMA.PROP_NAME
+
+	</sql>
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MODELEP">
+		
+		TME.EP,
+		TME.EP_NAME,
+		TME.UNIT,
+		TME.`PRECISION`,
+		TME.FLOWS AS FLOWS_STR
+
+	</sql>
+	<sql id="SELECT_PARAMS_CONFIG">
+		TMC.CONFIG_ID,
+		TMC.CONFIG_NAME,
+		TMC.CONFIG_TYPE,
+		TMC.FLOWS
+	</sql>
+	
+	<!-- 获取型号配置数据 -->
+	<select id="findModel" parameterType="com.yw.common.beansUtils.entity.importFile.ImportModelEntity" resultMap="resultMapImportModel">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_IMPORT_MODEL"/>
+         FROM T_MODEL TM
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="id != null and id != '' ">	<!-- 型号 -->
+				AND TM.MODEL_NO = #{id}
+			</if>
+			<if test="version != null ">	<!-- 版本 -->
+				AND TM.MODEL_VERSION = #{version}
+			</if>
+		</trim>
+	</select>
+	
+	<!-- 查询型号版本 -->
+	<select id="findModelVersion" parameterType="java.lang.String" resultMap="resultMapImportModelVersion">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_IMPORT_MODEL"/>
+         FROM T_MODEL TM
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TM.TID = #{value}
+		</trim>
+	</select>
+	
+	<!-- 查询属性功能 -->
+	<select id="findProperty" parameterType="java.lang.String" resultMap="resultMapProperty">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_PROPERTY"/>,
+         	TM.MODEL_NO
+         	
+         FROM T_MODEL_ATT TMA
+		 LEFT JOIN T_MODEL TM ON (TMA.FK_MODEL_TID = TM.TID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TMA.FK_MODEL_TID = #{value}
+		</trim>
+	</select>
+	
+	<!-- 查询EP功能 -->
+	<select id="findEp" parameterType="java.util.HashMap" resultMap="resultMapModelEp">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MODELEP"/>
+         FROM T_MODEL_EP TME
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TME.FK_MODEL_TID IN (SELECT MODEL_NO FROM T_MODEL WHERE MODEL_NO = #{model_no})
+			AND TME.PROP_ID = #{prop_id}
+		</trim>
+	</select>
+	
+	<!-- 查询配置功能 -->
+	<select id="findConfig" parameterType="java.lang.String" resultMap="resultMapConfig">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_CONFIG"/>
+         FROM T_MODEL_CONFIG TMC
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TMC.FK_MODEL_TID = #{value}
+		</trim>
+	</select>
+	
+	<!-- //////////////////////////////////应用(APP)//////////////////////////////////////////////////////////////////////////////////// -->
+	
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.ImportAppEntity" id="resultMapImportApp">
+		
+		<result property="id" column="ID"/>								<!-- 应用ID -->
+		<result property="instance_id" column="INSTANCE_ID"/>			<!-- 平台应用实例ID -->
+		<result property="name" column="NAME"/>							<!-- 应用名称 -->
+		<result property="enterprise_code" column="ORG_CODE"/>			<!-- 机构 -->
+		
+		<!-- 一对多 -->
+		<collection property="versions" column="TID"  select="findAppVersion" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.AppVersionEntity"/>
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.AppVersionEntity" id="resultMapImportAppVersion">
+		
+		<result property="version" column="APP_VERSION"/>	<!-- 版本 -->
+		<!-- 一对多 -->
+		<collection property="permission" column="TID"  select="findPermission" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.PermissionEntity"/>
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.PermissionEntity" id="resultMapPermission">
+		
+		<result property="model_id" column="MODEL_NO"/>		<!-- 型号ID -->
+		<!-- 一对多 -->
+		<collection property="cmds" column="{modelNo=MODEL_NO,fkAppTid=FK_APP_TID}"  select="findPermissionCmd" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.PermissionCmdEntity"/>
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.PermissionCmdEntity" id="resultMapPermissionCmd">
+	
+		<result property="ep" column="EP"/>		<!-- 选项 -->
+		<result property="prop_id" column="PROP_ID"/>		<!-- 功能ID -->
+		<result property="flowStr" column="FLOW_STR"/>		<!-- 选项 -->
+	</resultMap>
+	<sql id="SELECT_PARAMS_IMPORT_APP">
+		
+		TA.TID AS TID,
+		TA.APP_ID AS ID,
+		TA.APP_NAME AS NAME,
+		TA.APP_VERSION AS VERSION ,
+		TA.ORG_CODE AS ORG_CODE
+
+	</sql>
+	
+	<sql id="SELECT_PARAMS_PERMISSION">
+		TAF.FK_APP_TID,
+		TAF.MODEL_NO AS MODEL_NO
+	</sql>
+	
+	<sql id="SELECT_PARAMS_PERMISSIONCMD">
+		TAFF.EP AS EP,
+		TAFF.PROFILE_ID AS PROP_ID,
+		TAFF.FLOW AS FLOW_STR
+	</sql>
+	
+	<!-- 获取应用配置数据 -->
+	<select id="findApp" resultMap="resultMapImportApp">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_IMPORT_APP"/>,
+         	TAA.APP_INSTANCE AS INSTANCE_ID
+         	
+         FROM T_APP_ACCOUNT TAA 
+		 LEFT JOIN T_APP TA ON (TAA.APP_ID =TA.APP_ID AND TAA.APP_VERSION = TA.APP_VERSION)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="array != null and array.length != 0">
+				AND TAA.APP_INSTANCE IN (
+					<foreach collection="array" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+        	</if>
+		</trim>
+	</select>
+	<select id="findAppVersion" parameterType="java.lang.String" resultMap="resultMapImportAppVersion">  
+         SELECT 
+            TA.TID,
+         	TA.APP_ID,
+         	TA.APP_VERSION
+         FROM T_APP TA 
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	AND TA.TID = #{value}
+		</trim>
+	</select>
+	
+	<!-- 查询应用权限 -->
+	<select id="findPermission" parameterType="java.lang.String" resultMap="resultMapPermission">  
+         SELECT DISTINCT 
+         	<include refid="SELECT_PARAMS_PERMISSION"/>
+         FROM T_APP_FUNCTION TAF
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAF.FK_APP_TID = #{value}
+		</trim>
+	</select>
+	
+	<!-- 查询应用权限 -->
+	<select id="findPermissionCmd" parameterType="java.util.HashMap" resultMap="resultMapPermissionCmd">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_PERMISSIONCMD"/>
+         FROM T_APP_FUNCTION TAFF
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAFF.FK_APP_TID = #{fkAppTid}
+			AND TAFF.MODEL_NO = #{modelNo}
+		</trim>
+	</select>
+	<!-- //////////////////////////////////许可证(License)//////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.ImportLicenseEntity" id="resultMapImportLicense">
+		
+		<result property="id" column="ID"/>						<!-- 型号ID -->
+		<result property="pid" column="PID"/>					<!-- 型号名称 -->
+		<result property="desc" column="DESC_STR"/>					<!-- 型号版本 -->
+		<result property="create_time" column="CREATE_TIME"/>	<!-- 机构 -->
+		<result property="exp_time" column="EXP_TIME"/>			<!-- 结束时间 -->
+		
+		<!-- 一对多 -->
+		<collection property="devices" column="TID"  select="findDevices" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.DevicesEntity"/>
+		<collection property="apps" column="TID"  select="findApps" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.importFile.AppsEntity"/>
+		
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.DevicesEntity" id="resultMapDevices">
+		<result property="model_id" column="MODEL_ID"/>					<!--  -->
+		<result property="snStr" column="SN_STR"/>					<!--  -->
+		
+	</resultMap>
+	<resultMap type="com.yw.common.beansUtils.entity.importFile.AppsEntity" id="resultMapApps">
+		<result property="lic_ids_str" column="APP_INSTANCE_LIC_ID"/>					<!--  -->
+		<result property="app_id" column="APP_ID"/>					<!--  -->
+	</resultMap>
+
+	
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_IMPORT_LICENSE">
+		
+		TL.TID,
+		TL.LIC_NO AS ID,
+		TL.PID,
+		TL.LIC_NAME AS DESC_STR,
+		TL.BEGIN_TIME AS CREATE_TIME,
+		TL.END_TIME AS EXP_TIME
+
+	</sql>
+	<sql id="SELECT_PARAMS_DEVICES">
+		TDL.SN as SN_STR,
+		TDL.MODEL_NO AS MODEL_ID
+	</sql>
+	<sql id="SELECT_PARAMS_APPS">
+		TAL.APP_ID,
+		TAL.APP_INSTANCE_LIC_ID
+	</sql>
+	
+	<!-- 获取有效许可证数据 -->
+	<select id="findLicense" resultMap="resultMapImportLicense">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_IMPORT_LICENSE"/>
+         FROM T_LICENSE TL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+        	<if test="array != null and array.length != 0">
+				AND TL.LIC_NO IN (
+					<foreach collection="array" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+        	</if>
+        	AND BEGIN_TIME &lt; SYSDATE() AND END_TIME &gt; SYSDATE()
+		</trim>
+	</select>
+	
+	<!-- 查询属性功能 -->
+	<select id="findDevices" parameterType="java.lang.String" resultMap="resultMapDevices">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_DEVICES"/>
+         FROM T_DEVICE_LICENSE TDL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TDL.FK_LICENSE_TID = #{value}
+		</trim>
+	</select>
+	
+	<!-- 查询配置功能 -->
+	<select id="findApps" parameterType="java.lang.String" resultMap="resultMapApps">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPS"/>
+         FROM T_APP_LICENSE TAL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAL.FK_LICENSE_TID = #{value}
+		</trim>
+	</select>
+	<!-- //////////////////////////////////应用实例绑定SN//////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppInstanceDevEntity" id="resultMapAppInstanceDev">
+		
+		<result property="instance_id" column="INSTANCE_ID"/>						<!-- 平台应用实例ID -->
+		<!-- 一对多 -->
+		<collection property="sn_list" column="TID"  select="findSn" javaType="java.util.ArrayList" ofType="java.lang.String"/>
+		
+	</resultMap>
+	
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APP_INSTANCE_DEV">
+		TAA.TID,
+		TAA.APP_INSTANCE AS INSTANCE_ID
+	</sql>
+	
+	<!-- 获取型号配置数据 -->
+	<select id="findAppInstanceDevGet" parameterType="com.yw.common.beansUtils.entity.AppInstanceDevEntity" resultMap="resultMapAppInstanceDev">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APP_INSTANCE_DEV"/>
+         FROM T_APP_ACCOUNT TAA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="id != null and id != '' ">	<!-- 平台ID -->
+				AND TAA.APP_INSTANCE = #{id}
+			</if>
+		</trim>
+	</select>
+	
+	<!-- 查询属性功能 -->
+	<select id="findSn" parameterType="java.lang.String" resultType="java.lang.String">  
+         SELECT 
+         	SN
+         FROM T_APP_DEVICE TAD
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAD.FK_APP_ACCOUNT_TID = #{value}
+		</trim>
+	</select>
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- 查询已过期的许可证 -->
+	<select id="findExLicense" parameterType="com.yw.common.beansUtils.entity.importFile.ImportLicenseEntity" resultMap="resultMapImportLicense">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_IMPORT_LICENSE"/>
+         FROM T_LICENSE TL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	AND END_TIME &lt; SYSDATE()
+         </trim>
+         ORDER BY TL.CREATE_TIME DESC, TL.TID
+    </select>
+    
+    <update id="changeBatSQL">
+    	<if test="list != null and list.size() > 0">
+	    	<foreach collection="list" item="item" separator="">
+				${item}
+			</foreach>
+    	</if>
+    </update>
+</mapper>

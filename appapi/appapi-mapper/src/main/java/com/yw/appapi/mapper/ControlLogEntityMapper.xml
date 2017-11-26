@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+<mapper namespace="com.yw.appapi.mapper.ControlLogEntityMapper">
+
+	<sql id="SELECT_PARAMS_CONTROLLOG">
+			TCL.TID, 
+			TCL.APP_INSTANCE, 
+			TCL.CONTROL_UUID, 
+			TCL.REQ_PARAM, 
+			TCL.RSP_DATA, 
+			TCL.CREATE_TIME,
+			TCL.UPDATE_TIME
+	</sql>
+	
+	<resultMap id="controlLogResultMap" type="com.yw.common.beansUtils.entity.ControlLogEntity">
+		<id column="TID" property="tid"/>
+		<result column="APP_INSTANCE" property="appInstance"/>
+		<result column="CONTROL_UUID"  property="controlUuid"/>
+		<result column="REQ_PARAM"  property="reqParam"/>
+		<result column="RSP_DATA"  property="rspData"/>
+		<result column="CREATE_TIME"  property="createTime"/>
+	</resultMap>
+	
+	<select id="findAll" parameterType="com.yw.common.beansUtils.entity.ControlLogEntity" resultMap="controlLogResultMap">
+		SELECT 
+			<include refid="SELECT_PARAMS_CONTROLLOG"/>
+		FROM T_CONTROL_LOG TCL
+			<trim prefix="WHERE" prefixOverrides="AND |OR">
+				<if test="tid != null and tid != ''">
+					AND TCL.TID = #{tid} 						<!--主键  -->
+				</if>
+				<if test="appInstance != null and appInstance != ''">
+					AND TCL.APP_INSTANCE = #{appInstance}		<!-- 应用实例 -->
+				</if>
+				<if test="controlUuid != null and controlUuid != ''">
+					AND TCL.CONTROL_UUID = #{controlUuid}		<!-- 下发唯一标识 -->
+				</if>
+			</trim>
+			ORDER BY CREATE_TIME DESC, TID
+	</select>
+	
+	<select id="findById" parameterType="java.lang.String" resultMap="controlLogResultMap">
+		SELECT 
+			<include refid="SELECT_PARAMS_CONTROLLOG"/>
+		FROM T_CONTROL_LOG TCL
+		WHERE TID = #{value}	
+	</select>
+	
+
+	<insert id="insert" parameterType="com.yw.common.beansUtils.entity.ControlLogEntity">
+		INSERT INTO T_CONTROL_LOG
+		(
+			TID, 
+			APP_INSTANCE, 
+			CONTROL_UUID, 
+			REQ_PARAM, 
+			RSP_DATA, 
+			CREATE_TIME,
+			UPDATE_TIME
+		)
+		VALUES
+		(
+			#{tid}, 
+			#{appInstance}, 
+			#{controlUuid}, 
+			#{reqParam}, 
+			#{rspData}, 
+			SYSDATE(), 
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+		)
+		
+	</insert>
+	
+	<select id="getAppInstance" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT APP_INSTANCE 
+		FROM T_AUTH_LOG 
+		WHERE TOKEN = #{value}
+	</select>
+	
+	<delete id="delete" parameterType="java.lang.String">
+		DELETE FROM T_CONTROL_LOG 
+		WHERE TID = #{value}
+	</delete>
+	
+	<select id="getCount" parameterType="com.yw.common.beansUtils.entity.ControlLogEntity" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM T_CONTROL_LOG
+		<trim prefix="WHERE" prefixOverrides="AND |OR">
+			<if test="tid != null and tid != ''">
+					AND TID = #{tid} 						<!--主键  -->
+				</if>
+				<if test="appInstance != null and appInstance != ''">
+					AND APP_INSTANCE = #{appInstance}		<!-- 应用实例 -->
+				</if>
+				<if test="controlUuid != null and controlUuid != ''">
+					AND CONTROL_UUID = #{controlUuid}		<!-- 下发唯一标识 -->
+				</if>
+				<if test="createTime != null and createTime != ''">
+					AND CREATE_TIME = #{createTime}		<!-- 添加时间-->
+				</if>
+		</trim>
+	</select>
+	
+	<select id="getCountOfAppInstance" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM T_CONTROL_LOG
+		WHERE APP_INSTANCE = #{value}
+	</select>
+	
+	<select id="getCountOfControlUuid" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM T_CONTROL_LOG
+		WHERE CONTROL_UUID = #{value}
+	</select>
+	
+	<update id="updateById" parameterType="com.yw.common.beansUtils.entity.ControlLogEntity">
+		UPDATE T_CONTROL_LOG 
+		SET APP_INSTANCE = #{appInstance}, 
+			CONTROL_UUID = #{controlUuid}, 
+			REQ_PARAM = #{reqParam}, 
+			RSP_DATA = #{rspData}, 
+			UPDATE_TIME = DATE_FORMAT(SYSDATE(),'%Y%m%d%H%i%s')
+		WHERE
+		TID = #{tid}
+	</update>
+	
+</mapper>

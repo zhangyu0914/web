@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 设备表 -->
+<mapper namespace="com.yw.webplatform.mapper.DeviceEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.DeviceEntity" id="resultMapDevice">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkSnLicenceTid" column="FK_SN_LICENCE_TID"/>	<!-- SN许可证外键ID -->
+		<result property="fkOrganizationTid" column="FK_ORGANIZATION_TID"/>	<!-- 机构外键ID -->
+		<result property="sn" column="SN"/>	<!-- SN -->
+		<result property="eqName" column="EQ_NAME"/>	<!-- 设备名称 -->
+		<result property="eqStatus" column="EQ_STATUS"/>	<!-- 设备状态 -->
+		<result property="deviceType" column="DEVICE_TYPE"/>	<!-- 设备类型 -->
+		<result property="eqIcon" column="EQ_ICON"/>	<!-- 设备图标 -->
+		<result property="responseData" column="RESPONSE_DATA"/>	<!-- 返回结果 -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 型号 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="fkDeviceModelAttTid" column="FK_DEVICE_MODEL_ATT_TID"/>	<!--  -->
+		<result property="attName" column="ATT_NAME"/>	<!-- 属性名称 -->
+		<result property="attType" column="ATT_TYPE"/>	<!-- 属性类型 -->
+		<result property="attValue" column="ATT_VALUE"/>	<!-- 属性值 -->
+		<result property="valueType" column="VALUE_TYPE"/>	<!-- 值类型 -->
+		<result property="valueDemand" column="VALUE_DEMAND"/>	<!-- 值要求 -->
+		<result property="valueRegex" column="VALUE_REGEX"/>	<!-- 值正则 -->
+		<result property="bindingTime" column="BINDING_TIME"/>	<!-- 绑定时间 -->
+		<result property="modelName" column="MODEL_NAME"/>	<!-- 型号 -->
+		<result property="modelCode" column="MODEL_CODE"/>	<!-- 型号代码 -->
+		<result property="orgName" column="ORG_NAME"/>	<!-- 机构 -->
+		<result property="tradeName" column="TRADE_NAME"/>	<!--  -->
+		<result property="tradeCode" column="TRADE_CODE"/>	<!--  -->
+		<result property="modelVersion" column="MODEL_VERSION"/>	<!-- 型号版本号 -->
+		<result property="eqType" column="EQ_TYPE"/>	<!-- 设备类型 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_DEVICE">
+		
+		TD.TID,
+		TD.FK_SN_LICENCE_TID,
+		TD.FK_ORGANIZATION_TID,
+		TD.SN,
+		TD.EQ_NAME,
+		TD.EQ_STATUS,
+		TD.DEVICE_TYPE,
+		TD.EQ_ICON,
+		TD.RESPONSE_DATA,
+		TD.MODEL_NO,
+		TD.CREATE_TIME,
+		TD.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.DeviceEntity" resultMap="resultMapDevice">  
+         SELECT 
+         	DISTINCT
+         	<include refid="SELECT_PARAMS_DEVICE"/>,
+         	TM.MODEL_NAME,
+         	TM.MODEL_CODE,
+         	TM.MODEL_VERSION,
+         	TDD.BINDING_TIME,
+         	TR.TRADE_NAME AS TRADE_NAME,
+         	TSL.EQ_TYPE
+         	
+         FROM T_DEVICE TD
+         LEFT JOIN T_APP_DEVICE TDD ON (TD.SN = TDD.SN)
+         LEFT JOIN T_APP TA ON (TDD.APP_ID = TA.APP_ID)
+         LEFT JOIN T_MODEL TM ON (TD.MODEL_NO = TM.MODEL_NO)
+         LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+         LEFT JOIN T_SN_LIST TSL ON (TD.DEVICE_TYPE = TSL.DEVICE_TYPE)
+         	   
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TD.TID = #{tid}
+			</if>
+			<if test="fkSnLicenceTid != null and fkSnLicenceTid != '' ">	<!-- SN许可证外键ID -->
+				AND TD.FK_SN_LICENCE_TID = #{fkSnLicenceTid}
+			</if>
+			<if test="fkOrganizationTid != null and fkOrganizationTid != '' ">	<!-- 机构外键ID -->
+				AND TD.FK_ORGANIZATION_TID = #{fkOrganizationTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND UPPER(TD.SN) LIKE UPPER('%${sn}%')
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				AND UPPER(TD.EQ_NAME) LIKE UPPER('%${eqName}%')
+			</if>
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				AND TD.EQ_STATUS = #{eqStatus}
+			</if>
+			<if test="deviceType != null and deviceType != '' ">	<!-- 设备类型 -->
+				AND TD.DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 设备型号 -->
+				AND TD.MODEL_NO = #{modelNo}
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 设备型号 -->
+				AND TM.MODEL_CODE = #{modelCode}
+			</if>
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				AND UPPER(TR.TRADE_NAME) LIKE UPPER('%${tradeName}%')
+			</if>
+			<if test="fkAppTid != null and fkAppTid != '' ">	<!--  -->
+				AND TA.TID = #{fkAppTid}
+			</if>
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				AND TD.DEVICE_TYPE IN (SELECT DEVICE_TYPE FROM T_SN_LIST WHERE EQ_TYPE = #{eqType}) 
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TD.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TD.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TM.MODEL_NAME DESC, TM.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.DeviceEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_DEVICE TD
+         LEFT JOIN T_APP_DEVICE TDD ON (TD.SN = TDD.SN)
+         LEFT JOIN T_APP TA ON (TDD.APP_ID = TA.APP_ID)
+         LEFT JOIN T_MODEL TM ON (TD.MODEL_NO = TM.MODEL_NO)
+         LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+         LEFT JOIN T_SN_LIST TSL ON (TD.DEVICE_TYPE = TSL.DEVICE_TYPE)
+         
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TD.TID = #{tid}
+			</if>
+			<if test="fkSnLicenceTid != null and fkSnLicenceTid != '' ">	<!-- SN许可证外键ID -->
+				AND TD.FK_SN_LICENCE_TID = #{fkSnLicenceTid}
+			</if>
+			<if test="fkOrganizationTid != null and fkOrganizationTid != '' ">	<!-- 机构外键ID -->
+				AND TD.FK_ORGANIZATION_TID = #{fkOrganizationTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND UPPER(TD.SN) LIKE UPPER('%${sn}%')
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				AND UPPER(TD.EQ_NAME) LIKE UPPER('%${eqName}%')
+			</if>
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				AND TD.EQ_STATUS = #{eqStatus}
+			</if>
+			<if test="deviceType != null  and deviceType != '' ">	<!-- 设备类型 -->
+				AND TD.DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 设备型号 -->
+				AND TD.MODEL_NO = #{modelNo}
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 设备型号 -->
+				AND TM.MODEL_CODE = #{modelCode}
+			</if>
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				AND UPPER(TR.TRADE_NAME) LIKE UPPER('%${tradeName}%')
+			</if>
+			<if test="fkAppTid != null and fkAppTid != '' ">	<!-- orgName -->
+				AND TA.TID = #{fkAppTid}
+			</if>
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				AND TD.DEVICE_TYPE IN (SELECT DEVICE_TYPE FROM T_SN_LIST WHERE EQ_TYPE = #{eqType}) 
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TD.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TD.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.DeviceEntity">
+    	INSERT INTO T_DEVICE(
+    		
+			TID,
+			FK_SN_LICENCE_TID,
+			FK_ORGANIZATION_TID,
+			SN,
+			EQ_NAME,
+			EQ_STATUS,
+			DEVICE_TYPE,
+			EQ_ICON,
+			MODEL_NO,
+			MODEL_VERSION,
+			RESPONSE_DATA,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkSnLicenceTid},
+			#{fkOrganizationTid},
+			#{sn},
+			#{eqName},
+			#{eqStatus},
+			#{deviceType},
+			#{eqIcon},
+			#{modelNo},
+			#{modelVersion},
+			#{responseData},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.DeviceEntity">
+	   UPDATE T_DEVICE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkSnLicenceTid != null and fkSnLicenceTid != '' ">	<!-- SN许可证外键ID -->
+				,FK_SN_LICENCE_TID = #{fkSnLicenceTid}
+			</if>
+			<if test="fkOrganizationTid != null and fkOrganizationTid != '' ">	<!-- 机构外键ID -->
+				,FK_ORGANIZATION_TID = #{fkOrganizationTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				,SN = #{sn}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				,EQ_NAME = #{eqName}
+			</if>
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				,EQ_STATUS = #{eqStatus}
+			</if>
+			<if test="deviceType != null  and deviceType != '' ">	<!-- 设备类型 -->
+				,DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="responseData != null and responseData != '' ">	<!-- 设返回结果 -->
+				,RESPONSE_DATA = #{responseData}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_DEVICE WHERE TID = #{value}
+    </delete>
+    
+    <!-- 更新 -->
+    <update id="updateStatusBySN" parameterType="com.yw.common.beansUtils.entity.DeviceEntity">
+	   UPDATE T_DEVICE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				,EQ_STATUS = #{eqStatus}
+			</if>
+       		<if test="responseData != null and responseData != '' ">	<!-- 设返回结果 -->
+				,RESPONSE_DATA = #{responseData}
+			</if>
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		SN = #{sn}
+	   </trim>
+    </update>
+    
+    <!-- 设备配置查询 -->
+    <select id="findSetting" parameterType="com.yw.common.beansUtils.entity.DeviceEntity" resultMap="resultMapDevice">  
+        SELECT 
+       
+			TDA.TID,
+			TDA.SN,
+			TDA.MODEL_NO,
+			TDA.MODEL_VERSION,
+			TDA.EP,
+			TA.ATT_NAME,
+			TDA.UNIT,
+			TDA.INFO_VALUE AS ATT_VALUE,
+			TDA.JSON_DATA,
+			TDA.BATCH_NUMBER,
+			TDA.REMARK,
+			TDA.CREATE_TIME,
+			TDA.UPDATE_TIME
+
+		  FROM T_DEVICE_ATTRIBUTE TDA 
+		  LEFT JOIN T_ATTRIBUTE TA ON (TDA.PROP_ID = TA.PROFILE_ID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+				AND TDA.SN = #{sn}
+         </trim>
+         ORDER BY TDA.CREATE_TIME DESC, TDA.TID
+    </select>
+    
+    <!-- 查询APP下的绑定设备 -->
+    <select id="findAppDevice" parameterType="com.yw.common.beansUtils.entity.DeviceEntity" resultMap="resultMapDevice">
+		SELECT
+	
+			TAD.TID,
+			TAD.SN,
+			TAD.EQ_NAME,
+			TAD.MODEL_NO,
+			TAD.BINDING_TIME,
+			TAD.EQ_STATUS,
+			TM.MODEL_NAME,
+			TM.MODEL_CODE,
+			TM.MODEL_VERSION,
+			TR.TRADE_NAME,
+			TR.TRADE_CODE
+		
+		FROM T_APP_DEVICE TAD 
+		LEFT JOIN T_MODEL TM ON (TAD.MODEL_NO = TM.MODEL_NO)
+        LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAD.FK_APP_ACCOUNT_TID IN (SELECT TID FROM T_APP_ACCOUNT WHERE FK_APP_LICENSE_TID = #{fkAppTid})
+        </trim>
+        ORDER BY TAD.MODEL_NO ASC, TAD.TID
+    </select>
+    
+    
+    <!-- 查询APP下的绑定设备数量  -->
+    <select id="getCountAppDevice" parameterType="com.yw.common.beansUtils.entity.DeviceEntity" resultType="int">
+		SELECT
+			COUNT(1) AS COUNT
+		FROM T_APP_DEVICE TAD 
+		LEFT JOIN T_MODEL TM ON (TAD.MODEL_NO = TM.MODEL_NO)
+        LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND TAD.FK_APP_ACCOUNT_TID IN (SELECT TID FROM T_APP_ACCOUNT WHERE FK_APP_LICENSE_TID = #{fkAppTid})
+        </trim>
+    </select>
+    
+   	<!-- 根据sn查找一条记录 --> 
+    <select id="findOneBySn" parameterType="java.lang.String" resultMap="resultMapDevice">
+    	 SELECT 
+         	<include refid="SELECT_PARAMS_DEVICE"/>
+        FROM T_DEVICE TD
+        WHERE TD.SN = #{value}
+    </select>
+</mapper>

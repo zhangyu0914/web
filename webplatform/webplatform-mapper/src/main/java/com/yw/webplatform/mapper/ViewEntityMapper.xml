@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 预览 -->
+<mapper namespace="com.yw.webplatform.mapper.ViewEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ViewEntity" id="resultMapView">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+	
+	<!-- 获取应用报警数量 -->
+	<select id="getAppWarningCount" parameterType="com.yw.common.beansUtils.entity.AppAccountEntity" resultType="int">
+		SELECT 
+			COUNT(DISTINCT APP_ID) AS COUNT
+		FROM T_APP_DEVICE WHERE SN IN (
+			SELECT DISTINCT TW.SN FROM T_WARNING TW
+			LEFT JOIN T_DEVICE TD ON (TW.SN = TD.SN)
+			WHERE WA_STATUS = 0
+		)
+	</select>
+	<!-- 获取设备报警数量 -->
+	<select id="getDeviceWarningCount" parameterType="com.yw.common.beansUtils.entity.AppAccountEntity" resultType="int">
+		SELECT 
+			COUNT(DISTINCT TW.SN ) AS COUNT
+		FROM T_WARNING TW
+		LEFT JOIN T_DEVICE TD ON (TW.SN = TD.TID)
+		WHERE WA_STATUS = 0 
+	</select>
+</mapper>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 角色信息 -->
+<mapper namespace="com.yw.webplatform.mapper.UsersRolesEntityMapper">
+
+	<!-- 映射为实体:Roles -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersRolesEntity" id="resultMapRoles">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="roleName" column="ROLE_NAME"/>	<!-- 角色名称 -->
+		<result property="roleCode" column="ROLE_CODE"/>	<!-- 角色编码 -->
+		<result property="roleDescribe" column="ROLE_DESCRIBE"/>	<!-- 角色描述 -->
+		<result property="state" column="STATE"/>	<!-- 所属平台 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<!-- 一对多 -->
+		<collection property="functionsList" column="TID"  select="findFunctionsByRoleId" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.UsersFunctionsEntity"/>
+	</resultMap>
+	
+	<!-- 映射为实体:Functions -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersFunctionsEntity" id="resultMapFunctions">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="functionCode" column="FUNCTION_CODE"/>	<!-- 权限编码 -->
+		<result property="functionName" column="FUNCTION_NAME"/>	<!-- 权限名称 -->
+		<result property="uri" column="URI"/>	<!-- ACTION -->
+		<result property="functionLevel" column="FUNCTION_LEVEL"/>	<!-- 菜单级别 -->
+		<result property="parentCode" column="PARENT_CODE"/>	<!-- 权限编码 -->
+		<result property="displayOrder" column="DISPLAY_ORDER"/>	<!-- 菜单显示 -->
+		<result property="functionType" column="FUNCTION_TYPE"/>	<!-- 菜单类型 -->
+		<result property="functionSeq" column="FUNCTION_SEQ"/>	<!-- 显示顺序 -->
+		<result property="functionDesc" column="FUNCTION_DESC"/>	<!-- 菜单说明 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+	</resultMap>
+	
+	<!-- 查询时，把常用的字段抽出来进行公用，尽量减少开发员的工作量 -->
+	<sql id="SELECT_PARAMS_ROLES">
+		MUR.TID,
+		MUR.ROLE_NAME,
+		MUR.ROLE_CODE,
+		MUR.ROLE_DESCRIBE,
+		MUR.STATE,
+		MUR.CREATE_TIME,
+		MUR.UPDATE_TIME
+	</sql>
+	
+	
+	<sql id="SELECT_PARAMS_FUNCTIONS">
+		MUF.TID,
+		MUF.FUNCTION_CODE,
+		MUF.FUNCTION_NAME,
+		MUF.URI,
+		MUF.FUNCTION_LEVEL,
+		MUF.PARENT_CODE,
+		MUF.DISPLAY_ORDER,
+		MUF.FUNCTION_TYPE,
+		MUF.FUNCTION_SEQ,
+		MUF.FUNCTION_DESC,
+		MUF.CREATE_TIME,
+		MUF.UPDATE_TIME
+	</sql>
+	
+	
+     <!-- 根据条件，查询多条数据 -->
+     <select id="findAll" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity" resultMap="resultMapRoles">  
+         SELECT
+         	<include refid="SELECT_PARAMS_ROLES"/>
+         FROM T_USERS_ROLES MUR
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND MUR.TID = #{tid}
+			</if>
+			<if test="roleName != null and roleName != '' ">	<!-- 角色名称 -->
+				AND UPPER(MUR.ROLE_NAME) LIKE UPPER('%${roleName}%')
+			</if>
+			<if test="roleCode != null and roleCode != '' ">	<!-- 角色编码 -->
+				AND UPPER(MUR.ROLE_CODE) LIKE UPPER('%${roleCode}%')
+			</if>
+			<if test="roleDescribe != null and roleDescribe != '' ">	<!-- 角色描述 -->
+				AND UPPER(MUR.ROLE_DESCRIBE) LIKE UPPER('%${roleDescribe}%')
+			</if>
+			<if test="state != null ">	<!-- 所属平台 -->
+				AND MUR.STATE = #{state}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND MUR.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND MUR.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY CREATE_TIME DESC, STATE DESC
+    </select> 
+     <!-- 根据条件，查询多条数据(数量) -->
+     <select id="getCount" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity" resultType="int">  
+         SELECT
+         	COUNT(1)
+         FROM T_USERS_ROLES MUR
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND MUR.TID = #{tid}
+			</if>
+			<if test="roleName != null and roleName != '' ">	<!-- 角色名称 -->
+				AND UPPER(MUR.ROLE_NAME) LIKE UPPER('%${roleName}%')
+			</if>
+			<if test="roleCode != null and roleCode != '' ">	<!-- 角色编码 -->
+				AND UPPER(MUR.ROLE_CODE) LIKE UPPER('%${roleCode}%')
+			</if>
+			<if test="roleDescribe != null and roleDescribe != '' ">	<!-- 角色描述 -->
+				AND UPPER(MUR.ROLE_DESCRIBE) LIKE UPPER('%${roleDescribe}%')
+			</if>
+			<if test="state != null ">	<!-- 所属平台 -->
+				AND MUR.STATE = #{state}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND MUR.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND MUR.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select> 
+    
+    
+     <!-- 添加用户 -->
+   <insert id="insert" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity">
+   		INSERT INTO T_USERS_ROLES(
+				TID,
+				ROLE_NAME,
+				ROLE_CODE,
+				ROLE_DESCRIBE,
+				STATE,
+				CREATE_TIME
+   		) VALUES(
+	   			#{tid},
+				#{roleName},
+				#{roleCode},
+				#{roleDescribe},
+				#{state},
+				SYSDATE()
+   		 	)
+   </insert>  
+   
+      <!-- 根据条件ID查询 -->
+	<select id="findById" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity" resultMap="resultMapRoles">
+		SELECT 
+			<include refid="SELECT_PARAMS_ROLES"/>
+		FROM T_USERS_ROLES MUR
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	          TID = #{tid}
+        </trim>
+	</select>
+    
+     <!-- 更新 -->
+   <update id="updateById" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity">
+	   	UPDATE T_USERS_ROLES
+	   	<trim prefix="SET" suffixOverrides=",">
+		   	 UPDATE_TIME = SYSDATE()
+                          
+			<if test="roleName != null and roleName != '' ">	<!-- 角色名称 -->
+				,ROLE_NAME = #{roleName}
+			</if>
+			<if test="roleCode != null and roleCode != '' ">	<!-- 角色编码 -->
+				,ROLE_CODE = #{roleCode}
+			</if>
+			<if test="roleDescribe != null and roleDescribe != '' ">	<!-- 角色描述 -->
+				,ROLE_DESCRIBE = #{roleDescribe}
+			</if>
+			<if test="state != null ">	<!-- 所属平台 -->
+				,STATE = #{state}
+			</if>
+	   	</trim>
+	   	<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   	</trim>
+   </update>
+    
+    <!-- 删除用户 -->
+   <delete id="delete" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity">
+   		DELETE FROM T_USERS_ROLES
+   		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+   			TID = #{tid}
+   		</trim>   		
+   </delete>
+    
+    <!-- 根据角色ID,得到所有的权限 -->
+    <select id="findFunctionsByRoleId" parameterType="java.lang.String" resultMap="resultMapFunctions">  
+         SELECT 
+			<include refid="SELECT_PARAMS_FUNCTIONS"/>
+				
+		FROM T_USERS_ROLES_FUNCTIONS MURF
+		INNER JOIN T_USERS_FUNCTIONS MUF ON(MURF.T_FUNCTIONS_TID = MUF.TID)
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	 MURF.T_ROLES_TID = #{value}
+        </trim>
+    </select>
+   
+   <!-- 查询编码 -->
+   <select id="getMaxCode" parameterType="com.yw.common.beansUtils.entity.UsersRolesEntity" resultType="int">  
+         SELECT 
+		 	MAX(ROLE_CODE) + 1 AS MAX
+		 FROM T_USERS_ROLES MUR ORDER BY ROLE_CODE DESC LIMIT 0,1
+   </select>
+</mapper>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 字典数据表 -->
+<mapper namespace="com.yw.common.mapper.ConfigurationEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ConfigurationEntity" id="resultMapConfiguration">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="versionInt" column="VERSION_INT"/>	<!-- 版本号 -->
+		<result property="key" column="KEY"/>	<!-- KEY -->
+		<result property="value" column="VALUE"/>	<!-- value -->
+		<result property="remark" column="REMARK"/>	<!-- 备注说明 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_CONFIGURATION">
+		
+		TC.TID,
+		TC.VERSION_INT,
+		TC.KEY,
+		TC.VALUE,
+		TC.REMARK,
+		TC.CREATE_TIME,
+		TC.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.ConfigurationEntity" resultMap="resultMapConfiguration">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_CONFIGURATION"/>
+         FROM T_CONFIGURATION TC
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TC.TID = #{tid}
+			</if>
+			<if test="versionInt != null ">	<!-- 版本号 -->
+				AND TC.VERSION_INT = #{versionInt}
+			</if>
+			<if test="key != null and key != '' ">	<!-- KEY -->
+				AND TC.KEY = #{key}
+			</if>
+			<if test="value != null and value != '' ">	<!-- value -->
+				AND TC.VALUE = #{value}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注说明 -->
+				AND TC.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TC.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TC.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			<if test="dictionaryKey != null and dictionaryKey != '' ">
+			 	AND UPPER(TC.KEY) LIKE UPPER('%${dictionaryKey}%')
+			</if>
+         </trim>
+         ORDER BY TC.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.ConfigurationEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_CONFIGURATION TC
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TC.TID = #{tid}
+			</if>
+			<if test="versionInt != null ">	<!-- 版本号 -->
+				AND TC.VERSION_INT = #{versionInt}
+			</if>
+			<if test="key != null and key != '' ">	<!-- KEY -->
+				AND TC.KEY = #{key}
+			</if>
+			<if test="value != null and value != '' ">	<!-- value -->
+				AND TC.VALUE = #{value}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注说明 -->
+				AND TC.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TC.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TC.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			<if test="dictionaryKey != null and dictionaryKey != '' ">
+			 	AND UPPER(TC.KEY) LIKE UPPER('%${dictionaryKey}%')
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.ConfigurationEntity">
+    	INSERT INTO T_CONFIGURATION(
+    		
+			TID,
+			VERSION_INT,
+			KEY,
+			VALUE,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{versionInt},
+			#{key},
+			#{value},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.ConfigurationEntity">
+	   UPDATE T_CONFIGURATION
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="versionInt != null ">	<!-- 版本号 -->
+				,VERSION_INT = #{versionInt}
+			</if>
+			<if test="key != null and key != '' ">	<!-- KEY -->
+				,KEY = #{key}
+			</if>
+			<if test="value != null and value != '' ">	<!-- value -->
+				,VALUE = #{value}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注说明 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_CONFIGURATION WHERE TID = #{value}
+    </delete>
+</mapper>

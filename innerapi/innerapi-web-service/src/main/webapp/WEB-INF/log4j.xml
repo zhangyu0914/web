@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">					<!-- 控制台日志 -->
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
+		</layout>
+	</appender>
+	<appender name="appenderHtmlFile" class="org.apache.log4j.RollingFileAppender"> 	<!-- HTML日志 -->
+		<param name="threshold" value="debug" /><!-- 级别 -->
+		<param name="file" value="/logs/yw/v100/innerapi/log.html" />
+		<param name="maxFileSize" value="1024KB" />
+		<param name="maxBackupIndex" value="5" />
+		<param name="append" value="true" />
+		<layout class="com.yw.common.beansUtils.utils.json.HTMLLayout" />
+	</appender>
+    <appender name="appenderTxtFile" class="org.apache.log4j.DailyRollingFileAppender">	<!-- 每天输出日志 -->
+        <param name="File" value="/logs/yw/v100/innerapi/logs.txt" />
+        <param name="DatePattern" value=".yyyy-MM-dd" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t] %C (%F:%L) - %m%n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+        </filter>
+    </appender> 
+	<!--屏蔽所有org.springframework.*输出的Debug（及以下）信息-->
+    <logger name="org.springframework">
+        <level value="INFO"></level>
+    </logger>
+    
+    <category name="production"> 		<!-- 生产配置 -->
+		<priority value="DEBUG" />		<!-- 只输出开发人员定义的DEBUG级别以上日志 -->
+	</category>
+    
+	<root>
+		<priority value="INFO" />		<!-- 输出指定级别日志，优先级最高 -->
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="appenderTxtFile" />
+		<appender-ref ref="appenderHtmlFile" />
+	</root>
+</log4j:configuration>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 第三方应用数据 -->
+<mapper namespace="com.yw.appapi.mapper.PlatformAppEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.PlatformAppEntity" id="resultMapPlatformApp">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="app_instance" column="APP_INSTANCE"/>	<!-- 应用实例 -->
+		<result property="status" column="STATUS"/>	<!-- 状态 -->
+		<result property="sysload" column="SYSLOAD"/>	<!-- 系统值 -->
+		<result property="memory" column="MEMORY"/>	<!-- 内存 -->
+		<result property="disk" column="DISK"/>	<!-- 磁盘 -->
+		<result property="cpu" column="CPU"/>	<!-- CPU -->
+		<result property="customdataJson" column="CUSTOMDATA_JSON"/>	<!-- 自定义数据 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_PLATFORMAPP">
+		
+		TPA.TID,
+		TPA.APP_INSTANCE,
+		TPA.STATUS,
+		TPA.SYSLOAD,
+		TPA.MEMORY,
+		TPA.DISK,
+		TPA.CPU,
+		TPA.CUSTOMDATA_JSON,
+		TPA.CREATE_TIME,
+		TPA.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.PlatformAppEntity" resultMap="resultMapPlatformApp">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_PLATFORMAPP"/>
+         FROM T_PLATFORM_APP TPA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TPA.TID = #{tid}
+			</if>
+			<if test="app_instance != null and app_instance != '' ">	<!-- 应用实例 -->
+				AND TPA.APP_INSTANCE = #{app_instance}
+			</if>
+			<if test="status != null ">	<!-- 状态 -->
+				AND TPA.STATUS = #{status}
+			</if>
+			<if test="sysload != null ">	<!-- 系统值 -->
+				AND TPA.SYSLOAD = #{sysload}
+			</if>
+			<if test="memory != null ">	<!-- 内存 -->
+				AND TPA.MEMORY = #{memory}
+			</if>
+			<if test="disk != null ">	<!-- 磁盘 -->
+				AND TPA.DISK = #{disk}
+			</if>
+			<if test="cpu != null ">	<!-- CPU -->
+				AND TPA.CPU = #{cpu}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TPA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TPA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TPA.CREATE_TIME DESC, TPA.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.PlatformAppEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_PLATFORM_APP TPA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TPA.TID = #{tid}
+			</if>
+			<if test="app_instance != null and app_instance != '' ">	<!-- 应用实例 -->
+				AND TPA.APP_INSTANCE = #{app_instance}
+			</if>
+			<if test="status != null ">	<!-- 状态 -->
+				AND TPA.STATUS = #{status}
+			</if>
+			<if test="sysload != null ">	<!-- 系统值 -->
+				AND TPA.SYSLOAD = #{sysload}
+			</if>
+			<if test="memory != null ">	<!-- 内存 -->
+				AND TPA.MEMORY = #{memory}
+			</if>
+			<if test="disk != null ">	<!-- 磁盘 -->
+				AND TPA.DISK = #{disk}
+			</if>
+			<if test="cpu != null ">	<!-- CPU -->
+				AND TPA.CPU = #{cpu}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TPA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TPA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.PlatformAppEntity">
+    	INSERT INTO T_PLATFORM_APP(
+    		
+			TID,
+			APP_INSTANCE,
+			STATUS,
+			SYSLOAD,
+			MEMORY,
+			DISK,
+			CPU,
+			CUSTOMDATA_JSON,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{app_instance},
+			#{status},
+			#{sysload},
+			#{memory},
+			#{disk},
+			#{cpu},
+			#{customdataJson},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.PlatformAppEntity">
+	   UPDATE T_PLATFORM_APP
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="app_instance != null and app_instance != '' ">	<!-- 应用实例 -->
+				,APP_INSTANCE = #{app_instance}
+			</if>
+			<if test="status != null ">	<!-- 状态 -->
+				,STATUS = #{status}
+			</if>
+			<if test="sysload != null ">	<!-- 系统值 -->
+				,SYSLOAD = #{sysload}
+			</if>
+			<if test="memory != null ">	<!-- 内存 -->
+				,MEMORY = #{memory}
+			</if>
+			<if test="disk != null ">	<!-- 磁盘 -->
+				,DISK = #{disk}
+			</if>
+			<if test="cpu != null ">	<!-- CPU -->
+				,CPU = #{cpu}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_PLATFORM_APP WHERE TID = #{value}
+    </delete>
+</mapper>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- APP账户 -->
+<mapper namespace="com.yw.webplatform.mapper.AppAccountEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppAccountEntity" id="resultMapAppAccount">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkOrganizationTid" column="FK_ORGANIZATION_TID"/>	<!-- 机构 -->
+		<result property="fkAppLicenseTid" column="FK_APP_LICENSE_TID"/>	<!-- 应用许可证外键 -->
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="appVersion" column="APP_VERSION"/>	<!-- 应用版本 -->
+		<result property="appInstance" column="APP_INSTANCE"/>	<!-- 应用账号 -->
+		<result property="appKey" column="APP_KEY"/>	<!-- 应用密钥 -->
+		<result property="msgMaxCount" column="MSG_MAX_COUNT"/>	<!-- 可接收最大消息数 -->
+		<result property="accountstatus" column="ACCOUNTSTATUS"/>	<!-- 账号状态 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="appName" column="APP_NAME"/>	
+		<result property="orgName" column="ORG_NAME"/>	
+		<result property="appReportName" column="APP_REPORT_NAME"/>	
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APPACCOUNT">
+		
+		TAA.TID,
+		TAA.FK_ORGANIZATION_TID,
+		TAA.FK_APP_LICENSE_TID,
+		TAA.APP_ID,
+		TAA.APP_VERSION,
+		TAA.APP_INSTANCE,
+		TAA.APP_KEY,
+		TAA.MSG_MAX_COUNT,
+		TAA.ACCOUNTSTATUS,
+		TAA.REMARK,
+		TAA.CREATE_TIME,
+		TAA.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AppAccountEntity" resultMap="resultMapAppAccount">  
+         SELECT DISTINCT
+         	<include refid="SELECT_PARAMS_APPACCOUNT"/>,
+         	(SELECT DISTINCT APP_NAME FROM T_APP WHERE APP_ID = TAA.APP_ID ) AS APP_NAME,
+         	TOTO.ORG_NAME AS ORG_NAME,
+         	TAL.APP_REPORT_NAME
+         	
+         FROM T_APP_ACCOUNT TAA,T_APP TA,T_ORGANIZATION TOTO,T_APP_LICENSE TAL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	TAA.APP_ID = TA.APP_ID AND TAA.FK_ORGANIZATION_TID = TOTO.TID AND TAA.FK_APP_LICENSE_TID = TAL.TID
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAA.TID = #{tid}
+			</if>
+			<if test="fkOrganizationTid != null and fkOrganizationTid != '' ">	<!-- 机构 -->
+				AND TAA.FK_ORGANIZATION_TID = #{fkOrganizationTid}
+			</if>
+			<if test="fkAppLicenseTid != null and fkAppLicenseTid != '' ">	<!-- 应用许可证外键 -->
+				AND TAA.FK_APP_LICENSE_TID = #{fkAppLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TAA.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				AND TAA.APP_INSTANCE = #{appInstance}
+			</if>
+			<if test="appKey != null and appKey != '' ">	<!-- 应用密钥 -->
+				AND TAA.APP_KEY = #{appKey}
+			</if>
+			<if test="msgMaxCount != null ">	<!-- 可接收最大消息数 -->
+				AND TAA.MSG_MAX_COUNT = #{msgMaxCount}
+			</if>
+			<if test="accountstatus != null ">	<!-- 账号状态 -->
+				AND TAA.ACCOUNTSTATUS = #{accountstatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TAA.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="orgName != null and orgName != '' ">	<!--  -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+			<if test="appName != null and appName != '' ">	<!--  -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+			<if test="appReportName != null and appReportName != '' ">	<!-- 最大实例数 -->
+				AND UPPER(TAL.APP_REPORT_NAME) LIKE UPPER('%${appReportName}%') 
+			</if>
+         </trim>
+         ORDER BY TAA.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AppAccountEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM 
+		 (SELECT DISTINCT
+         	<include refid="SELECT_PARAMS_APPACCOUNT"/>,
+         	(SELECT DISTINCT APP_NAME FROM T_APP WHERE APP_ID = TAA.APP_ID ) AS APP_NAME,
+         	TOTO.ORG_NAME AS ORG_NAME,
+         	TAL.APP_REPORT_NAME
+         	
+	        FROM T_APP_ACCOUNT TAA,T_APP TA,T_ORGANIZATION TOTO,T_APP_LICENSE TAL
+	        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	TAA.APP_ID = TA.APP_ID AND TAA.FK_ORGANIZATION_TID = TOTO.TID AND TAA.FK_APP_LICENSE_TID = TAL.TID
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAA.TID = #{tid}
+			</if>
+			<if test="fkOrganizationTid != null and fkOrganizationTid != '' ">	<!-- 机构 -->
+				AND TAA.FK_ORGANIZATION_TID = #{fkOrganizationTid}
+			</if>
+			<if test="fkAppLicenseTid != null and fkAppLicenseTid != '' ">	<!-- 应用许可证外键 -->
+				AND TAA.FK_APP_LICENSE_TID = #{fkAppLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TAA.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				AND TAA.APP_INSTANCE = #{appInstance}
+			</if>
+			<if test="appKey != null and appKey != '' ">	<!-- 应用密钥 -->
+				AND TAA.APP_KEY = #{appKey}
+			</if>
+			<if test="msgMaxCount != null ">	<!-- 可接收最大消息数 -->
+				AND TAA.MSG_MAX_COUNT = #{msgMaxCount}
+			</if>
+			<if test="accountstatus != null ">	<!-- 账号状态 -->
+				AND TAA.ACCOUNTSTATUS = #{accountstatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TAA.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="orgName != null and orgName != '' ">	<!--  -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+			<if test="appName != null and appName != '' ">	<!--  -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+			<if test="appId != null and appId != '' ">	<!--  -->
+				AND UPPER(TA.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appReportName != null and appReportName != '' ">	<!-- 最大实例数 -->
+				AND UPPER(TAL.APP_REPORT_NAME) LIKE UPPER('%${appReportName}%')
+			</if>
+         </trim>
+         ) TT
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AppAccountEntity">
+    	INSERT INTO T_APP_ACCOUNT(
+    		
+			TID,
+			FK_ORGANIZATION_TID,
+			FK_APP_LICENSE_TID,
+			APP_ID,
+			APP_VERSION,
+			APP_INSTANCE,
+			APP_KEY,
+			MSG_MAX_COUNT,
+			ACCOUNTSTATUS,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkOrganizationTid},
+			#{fkAppLicenseTid},
+			#{appId},
+			#{appVersion},
+			#{appInstance},
+			#{appKey},
+			#{msgMaxCount},
+			IFNULL(#{accountstatus},0),
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AppAccountEntity">
+	   UPDATE T_APP_ACCOUNT
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkOrganizationTid != null and fkOrganizationTid != '' ">	<!-- 机构 -->
+				,FK_ORGANIZATION_TID = #{fkOrganizationTid}
+			</if>
+			<if test="fkAppLicenseTid != null and fkAppLicenseTid != '' ">	<!-- 应用许可证外键 -->
+				,FK_APP_LICENSE_TID = #{fkAppLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				,APP_ID = #{appId}
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				,APP_INSTANCE = #{appInstance}
+			</if>
+			<if test="appKey != null and appKey != '' ">	<!-- 应用密钥 -->
+				,APP_KEY = #{appKey}
+			</if>
+			<if test="msgMaxCount != null ">	<!-- 可接收最大消息数 -->
+				,MSG_MAX_COUNT = #{msgMaxCount}
+			</if>
+			<if test="accountstatus != null ">	<!-- 账号状态 -->
+				,ACCOUNTSTATUS = #{accountstatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_APP_ACCOUNT WHERE TID = #{value}
+    </delete>
+    
+     <!-- 关联查询 -->
+	<select id="findOne" parameterType="java.lang.String" resultMap="resultMapAppAccount">
+		SELECT
+		<include refid="SELECT_PARAMS_APPACCOUNT" />
+		FROM T_APP_ACCOUNT TAA
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			TAA.APP_INSTANCE IN
+			(
+			SELECT APP_INSTANCE FROM T_AUTH_LOG WHERE TOKEN = #{value}
+			)
+		</trim>
+	</select>
+	
+	<!-- 密钥查询 -->
+	<select id="findAppAccount" resultMap="resultMapAppAccount">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPACCOUNT"/>
+         FROM T_APP_ACCOUNT TAA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="array != null and array.length != 0">
+				AND TAA.APP_INSTANCE IN (
+					<foreach collection="array" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+        	</if>
+		 </trim>
+	</select>
+</mapper>

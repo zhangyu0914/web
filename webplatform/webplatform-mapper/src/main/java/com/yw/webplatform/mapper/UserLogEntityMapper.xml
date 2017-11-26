@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 用户注册登录日志表 -->
+<mapper namespace="com.yw.webplatform.mapper.UserLogEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UserLogEntity" id="resultMapUserLog">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkUserTid" column="FK_USER_TID"/>	<!-- 外键用户ID -->
+		<result property="lastLoginTime" column="LAST_LOGIN_TIME"/>	<!-- 最近一次登录时间 -->
+		<result property="lastLoginToken" column="LAST_LOGIN_TOKEN"/>	<!-- 最后一次TOKEN -->
+		<result property="lastLoginDeviceId" column="LAST_LOGIN_DEVICE_ID"/>	<!-- 最后一次使用设备ID -->
+		<result property="visitType" column="VISIT_TYPE"/>	<!-- 访问类型 -->
+		<result property="tokenTimeout" column="TOKEN_TIMEOUT"/>	<!-- 会话超时 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_USERLOG">
+		
+		TUL.TID,
+		TUL.FK_USER_TID,
+		TUL.LAST_LOGIN_TIME,
+		TUL.LAST_LOGIN_TOKEN,
+		TUL.LAST_LOGIN_DEVICE_ID,
+		TUL.VISIT_TYPE,
+		TUL.TOKEN_TIMEOUT,
+		TUL.CREATE_TIME,
+		TUL.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.UserLogEntity" resultMap="resultMapUserLog">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_USERLOG"/>
+         FROM T_USER_LOG TUL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TUL.TID = #{tid}
+			</if>
+			<if test="fkUserTid != null and fkUserTid != '' ">	<!-- 外键用户ID -->
+				AND TUL.FK_USER_TID = #{fkUserTid}
+			</if>
+			<if test="lastLoginTime != null and lastLoginTime != '' ">	<!-- 最近一次登录时间 -->
+				AND TUL.LAST_LOGIN_TIME = #{lastLoginTime}
+			</if>
+			<if test="lastLoginToken != null and lastLoginToken != '' ">	<!-- 最后一次TOKEN -->
+				AND TUL.LAST_LOGIN_TOKEN = #{lastLoginToken}
+			</if>
+			<if test="lastLoginDeviceId != null and lastLoginDeviceId != '' ">	<!-- 最后一次使用设备ID -->
+				AND TUL.LAST_LOGIN_DEVICE_ID = #{lastLoginDeviceId}
+			</if>
+			<if test="visitType != null ">	<!-- 访问类型 -->
+				AND TUL.VISIT_TYPE = #{visitType}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TUL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TUL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TUL.CREATE_TIME DESC, TUL.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.UserLogEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_USER_LOG TUL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TUL.TID = #{tid}
+			</if>
+			<if test="fkUserTid != null and fkUserTid != '' ">	<!-- 外键用户ID -->
+				AND TUL.FK_USER_TID = #{fkUserTid}
+			</if>
+			<if test="lastLoginTime != null and lastLoginTime != '' ">	<!-- 最近一次登录时间 -->
+				AND TUL.LAST_LOGIN_TIME = #{lastLoginTime}
+			</if>
+			<if test="lastLoginToken != null and lastLoginToken != '' ">	<!-- 最后一次TOKEN -->
+				AND TUL.LAST_LOGIN_TOKEN = #{lastLoginToken}
+			</if>
+			<if test="lastLoginDeviceId != null and lastLoginDeviceId != '' ">	<!-- 最后一次使用设备ID -->
+				AND TUL.LAST_LOGIN_DEVICE_ID = #{lastLoginDeviceId}
+			</if>
+			<if test="visitType != null ">	<!-- 访问类型 -->
+				AND TUL.VISIT_TYPE = #{visitType}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TUL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TUL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.UserLogEntity">
+    	INSERT INTO T_USER_LOG(
+    		
+			TID,
+			FK_USER_TID,
+			LAST_LOGIN_TIME,
+			LAST_LOGIN_TOKEN,
+			LAST_LOGIN_DEVICE_ID,
+			VISIT_TYPE,
+			TOKEN_TIMEOUT,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkUserTid},
+			#{lastLoginTime},
+			#{lastLoginToken},
+			#{lastLoginDeviceId},
+			#{visitType},
+			#{tokenTimeout},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.UserLogEntity">
+	   UPDATE T_USER_LOG
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkUserTid != null and fkUserTid != '' ">	<!-- 外键用户ID -->
+				,FK_USER_TID = #{fkUserTid}
+			</if>
+			<if test="lastLoginTime != null and lastLoginTime != '' ">	<!-- 最近一次登录时间 -->
+				,LAST_LOGIN_TIME = #{lastLoginTime}
+			</if>
+			<if test="lastLoginToken != null and lastLoginToken != '' ">	<!-- 最后一次TOKEN -->
+				,LAST_LOGIN_TOKEN = #{lastLoginToken}
+			</if>
+			<if test="lastLoginDeviceId != null and lastLoginDeviceId != '' ">	<!-- 最后一次使用设备ID -->
+				,LAST_LOGIN_DEVICE_ID = #{lastLoginDeviceId}
+			</if>
+			<if test="visitType != null ">	<!-- 访问类型 -->
+				,VISIT_TYPE = #{visitType}
+			</if>
+			<if test="tokenTimeout != null and tokenTimeout != '' ">	<!-- 超时 -->
+				,TOKEN_TIMEOUT = #{tokenTimeout}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+   
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_USER_LOG WHERE TID = #{value}
+    </delete>
+</mapper>

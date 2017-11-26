@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+
+
+	<parent>
+        <artifactId>web</artifactId>
+        <groupId>com.yw</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.yw</groupId>
+	<artifactId>webplatform</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>webplatform</name>
+	<description>主工程，只用于归纳各个模块</description>
+	
+	<!-- 整合的模块 -->
+	<modules>
+		<module>webplatform-mapper</module>
+		<module>webplatform-api</module>
+		<module>webplatform-service</module>
+		<module>webplatform-controller</module>
+		<module>webplatform-web-service</module> 
+		
+	</modules>
+</project>

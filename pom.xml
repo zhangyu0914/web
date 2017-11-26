@@ -1,0 +1,628 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.yw</groupId>
+	<artifactId>web</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>web</name>
+	<description>主工程，只用于归纳各个模块</description>
+	
+
+	<!-- 整合的模块 -->
+	<modules>
+		<module>common</module>
+		<module>webplatform</module>
+		<module>innerapi</module>
+		<module>appapi</module>
+	</modules>
+	
+	<!-- 设置 JAR 包的版本 -->
+    <properties>
+		<org.springframework.version>4.2.0.RELEASE</org.springframework.version>
+		<org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
+		<commons.version>1.4</commons.version>
+  	</properties>
+  	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<configuration>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+			</plugins>		
+		</pluginManagement>
+	</build>
+	
+	<dependencies>
+		<!-- 此处开始就是Spring 所有的jar了，spring3.0的jar包拆分了，所以很多 -->
+		<!--
+			Core utilities used by other modules. Define this if you use Spring
+			Utility APIs (org.springframework.core.*/org.springframework.util.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Expression Language (depends on spring-core) Define this if you use
+			Spring Expression APIs (org.springframework.expression.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Bean Factory and JavaBeans utilities (depends on spring-core) Define
+			this if you use Spring Bean APIs (org.springframework.beans.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Aspect Oriented Programming (AOP) Framework (depends on spring-core,
+			spring-beans) Define this if you use Spring AOP APIs
+			(org.springframework.aop.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Application Context (depends on spring-core, spring-expression,
+			spring-aop, spring-beans) This is the central artifact for Spring's
+			Dependency Injection Container and is generally always defined
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Various Application Context utilities, including EhCache, JavaMail,
+			Quartz, and Freemarker integration Define this if you need any of
+			these integrations
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Transaction Management Abstraction (depends on spring-core,
+			spring-beans, spring-aop, spring-context) Define this if you use
+			Spring Transactions or DAO Exception Hierarchy
+			(org.springframework.transaction.*/org.springframework.dao.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			JDBC Data Access Library (depends on spring-core, spring-beans,
+			spring-context, spring-tx) Define this if you use Spring's
+			JdbcTemplate API (org.springframework.jdbc.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Object-to-Relation-Mapping (ORM) integration with Hibernate, JPA, and
+			iBatis. (depends on spring-core, spring-beans, spring-context,
+			spring-tx) Define this if you need ORM (org.springframework.orm.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Object-to-XML Mapping (OXM) abstraction and integration with JAXB,
+			JiBX, Castor, XStream, and XML Beans. (depends on spring-core,
+			spring-beans, spring-context) Define this if you need OXM
+			(org.springframework.oxm.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-oxm</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Web application development utilities applicable to both Servlet and
+			Portlet Environments (depends on spring-core, spring-beans,
+			spring-context) Define this if you use Spring MVC, or wish to use
+			Struts, JSF, or another web framework with Spring
+			(org.springframework.web.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Spring MVC for Servlet Environments (depends on spring-core,
+			spring-beans, spring-context, spring-web) Define this if you use
+			Spring MVC with a Servlet Container such as Apache Tomcat
+			(org.springframework.web.servlet.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Spring MVC for Portlet Environments (depends on spring-core,
+			spring-beans, spring-context, spring-web) Define this if you use
+			Spring MVC with a Portlet Container
+			(org.springframework.web.portlet.*)
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc-portlet</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!--
+			Support for testing Spring applications with tools such as JUnit and
+			TestNG This artifact is generally always defined with a 'test' scope
+			for the integration testing framework and unit testing stubs
+		-->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${org.springframework.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- 上面的都是Spring的jar包，可以选择性的添加 -->
+		<!-- Mybatis 开发包 -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<!-- Mybatis 和Spring的 整合包，是mybatis出的-->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<!-- tomcat servlet开发包 -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+		<!-- JSTL标签库 -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- mysql的数据库驱动包 -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.25</version>
+		</dependency>
+		<!-- 日志打印 log4j包 -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<!-- shiro -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-web</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-ehcache</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+		<!-- 下面两个包 commons-dbcp,commons-pool 是配置数据源的包-->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>${commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<version>1.5.4</version>
+		</dependency>
+		<!-- 日志记录依赖包，很多都依赖此包，像log4j,json-lib等等 -->
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<!-- Spring 文件上传的包 -->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<!-- Spring 文件上传的依赖包 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		<!-- HL7医学影像标准格式 -->
+		 <dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1-beta-7</version>
+		</dependency>
+		<!-- dom4j 解析 XML文件的包 -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- 下面的三个包是在配置事务的时候用到的 spring的依赖包  -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>aopalliance</groupId>
+			<artifactId>aopalliance</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+		<!-- JSON lib 开发包 以及它的依赖包 -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<classifier>jdk15</classifier>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ezmorph</groupId>
+			<artifactId>ezmorph</artifactId>
+			<version>1.0.5</version>
+		</dependency>
+		<!-- junit 测试包 -->
+        <dependency>  
+             <groupId>junit</groupId>  
+             <artifactId>junit</artifactId>  
+             <version>4.10</version>  
+        </dependency>  
+		<!-- JSON包(开始) -->
+		<dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-lgpl</artifactId>
+            <version>${org.codehaus.jackson.version}</version>
+        </dependency>
+        <dependency>  
+			<groupId>org.codehaus.jackson</groupId>  
+		    <artifactId>jackson-core-asl</artifactId>  
+		    <version>${org.codehaus.jackson.version}</version>  
+		</dependency>  
+		<dependency>  
+			<groupId>org.codehaus.jackson</groupId>  
+		    <artifactId>jackson-mapper-asl</artifactId>  
+		    <version>${org.codehaus.jackson.version}</version>  
+		</dependency> 
+        <dependency>
+        	<groupId>org.codehaus.jackson</groupId>
+        	<artifactId>jackson-mapper-lgpl</artifactId>
+        	<version>${org.codehaus.jackson.version}</version>
+        </dependency>
+        <!-- JSON包[END] -->
+        <!-- 拼音 -->
+        <dependency>
+			<groupId>com.belerweb</groupId>
+			<artifactId>pinyin4j</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<!-- alibaba JSON:对空值处理 -->
+		<dependency>
+		  <groupId>com.alibaba</groupId>
+		  <artifactId>fastjson-ihygeia</artifactId>
+		  <version>1.2.7</version>
+		</dependency>
+		<!-- EXCEL POI -->
+		<dependency>
+		  <groupId>jodd</groupId>
+		  <artifactId>jodd-mobile</artifactId>
+		  <version>3.4.5</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.poi</groupId>
+		  <artifactId>poi</artifactId>
+		  <version>3.9-20121203</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.poi</groupId>
+		  <artifactId>poi-ooxml-schemas</artifactId>
+		  <version>3.10-beta1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.xmlbeans</groupId>
+		  <artifactId>xmlbeans</artifactId>
+		  <version>2.3.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>fakepath</groupId>
+		  <artifactId>poi-ooxml</artifactId>
+		  <version>3.9-20121203-new</version>
+		</dependency>
+		<!-- EXCEL POI [END] -->
+		<!-- MYBATIS LOG -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+			<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<!-- MYBATIS LOG[END] -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<!-- 七牛 -->
+		<dependency>
+			<groupId>com.qiniu</groupId>
+			<artifactId>sdk</artifactId>
+			<version>6.1.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.qiniu</groupId>
+			<artifactId>qiniu-java-sdk</artifactId>
+			<version>[7.2.0,7.2.99]</version>
+		</dependency>
+		<!-- 阿里巴巴数据库连接池插件：druid -->
+		<dependency>
+	        <groupId>com.alibaba</groupId>
+	        <artifactId>druid</artifactId>
+	        <version>1.0.7</version>
+	    </dependency>
+	    <!-- 定时任务：quartz -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+        <dependency>
+		  <groupId>commons-httpclient</groupId>
+		  <artifactId>commons-httpclient</artifactId>
+		  <version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-all</artifactId>
+			<version>1.8.5</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.igexin.server</groupId>
+		  <artifactId>gexin-rp-sdk-base</artifactId>
+		  <version>2.0.0.18</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.igexin.server</groupId>
+		  <artifactId>gexin-rp-sdk-http</artifactId>
+		  <version>3.0.0.7</version>
+		</dependency>
+		<dependency>
+		  <groupId>fakepath</groupId>
+		  <artifactId>gexin-rp-sdk-template</artifactId>
+		  <version>2.0.0.7</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.google.protobuf</groupId>
+		  <artifactId>protobuf-java</artifactId>
+		  <version>2.5.0</version>
+		</dependency>
+			<dependency>
+		  <groupId>dom4j</groupId>
+		  <artifactId>dom4j</artifactId>
+		  <version>1.6.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.hibernate</groupId>
+		  <artifactId>hibernate-validator</artifactId>
+		  <version>4.3.0.Final</version>
+		</dependency>
+		<dependency>
+		  <groupId>javax.validation</groupId>
+		  <artifactId>validation-api</artifactId>
+		  <version>1.0.0.GA</version>
+		</dependency>
+		<dependency>
+		  <groupId>fakepath</groupId>
+		  <artifactId>kaptcha</artifactId>
+		  <version>2.3.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.bouncycastle</groupId>
+		  <artifactId>bcprov-jdk16-new</artifactId>
+		  <version>1.46</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>jms</artifactId>
+			<version>1.1</version>
+		</dependency>
+        <!-- Enabling the use of FTP -->
+        <dependency>
+        	<groupId>org.apache.maven.wagon</groupId>
+         	<artifactId>wagon-ftp</artifactId>
+         	<version>1.0-beta-6</version>
+        </dependency>
+      	<dependency>
+	      <groupId>antlr</groupId>
+	      <artifactId>antlr</artifactId>
+	      <version>2.7.7</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.hibernate</groupId>
+	      <artifactId>hibernate-core</artifactId>
+	      <version>4.1.4.Final</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.hibernate.common</groupId>
+	      <artifactId>hibernate-commons-annotations</artifactId>
+	      <version>4.0.1.Final</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.hibernate.javax.persistence</groupId>
+	      <artifactId>hibernate-jpa-2.0-api</artifactId>
+	      <version>1.0.1.Final</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.hibernate</groupId>
+	      <artifactId>hibernate-entitymanager</artifactId>
+	      <version>4.1.4.Final</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.javassist</groupId>
+	      <artifactId>javassist</artifactId>
+	      <version>3.15.0-GA</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.jboss.logging</groupId>
+	      <artifactId>jboss-logging</artifactId>
+	      <version>3.1.0.GA</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.jboss.spec.javax.transaction</groupId>
+	      <artifactId>jboss-transaction-api_1.1_spec</artifactId>
+	      <version>1.0.0.Final</version>
+	    </dependency>
+	    <dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.21.Final</version>
+		</dependency>
+		<!-- LINUX SSH -->
+		<dependency>
+		  <groupId>orion</groupId>
+		  <artifactId>orion-ssh2</artifactId>
+		  <version>214</version>
+		</dependency>
+		<dependency>
+		  <groupId>commons-codec</groupId>
+  		  <artifactId>commons-codec</artifactId>
+  		  <version>1.8</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-core</artifactId>
+		  <version>2.5.0</version>
+		</dependency>
+		<dependency>
+		   <groupId>com.fasterxml.jackson.core</groupId>
+  		   <artifactId>jackson-databind</artifactId>
+ 		   <version>2.5.0</version>
+		</dependency>
+		<!-- mybatis 分页 -->
+		<dependency>
+		  <groupId>com.github.pagehelper</groupId>
+		  <artifactId>pagehelper</artifactId>
+		  <version>4.0.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.github.jsqlparser</groupId>
+		    <artifactId>jsqlparser</artifactId>
+		    <version>0.9.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.zxing</groupId>
+		    <artifactId>core</artifactId>
+		    <version>2.1</version> 
+          	<scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>com.google.zxing</groupId>
+		  <artifactId>javase</artifactId>
+		  <version>2.1</version>
+		  <scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>net.lingala.zip4j</groupId>
+		    <artifactId>zip4j</artifactId>
+		    <version>1.3.1</version>
+		</dependency>
+	</dependencies>
+</project>

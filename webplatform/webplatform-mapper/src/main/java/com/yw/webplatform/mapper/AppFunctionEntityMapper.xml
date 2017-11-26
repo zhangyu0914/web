@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 应用权限 -->
+<mapper namespace="com.yw.webplatform.mapper.AppFunctionEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppFunctionEntity" id="resultMapAppFunction">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkAppTid" column="FK_APP_TID"/>	<!-- 应用外键ID -->
+		<result property="profileId" column="PROFILE_ID"/>	<!-- 功能ID -->
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="appVersion" column="APP_VERSION"/>	<!-- 应用版本号 -->
+		<result property="flow" column="FLOW"/>	<!-- 选项 -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 型号ID -->
+		<result property="ep" column="EP"/>	<!-- 同组中某一个 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APPFUNCTION">
+		
+		TAF.TID,
+		TAF.FK_APP_TID,
+		TAF.PROFILE_ID,
+		TAF.APP_ID,
+		TAF.APP_VERSION,
+		TAF.FLOW,
+		TAF.MODEL_NO,
+		TAF.EP,
+		TAF.CREATE_TIME,
+		TAF.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AppFunctionEntity" resultMap="resultMapAppFunction">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPFUNCTION"/>
+         FROM T_APP_FUNCTION TAF
+         LEFT JOIN T_ATTRIBUTE TA ON (TAF.PROFILE_ID = TA.PROFILE_ID)
+         LEFT JOIN T_MODEL TM ON (TAF.MODEL_NO = TM.TID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAF.TID = #{tid}
+			</if>
+			<if test="fkAppTid != null and fkAppTid != '' ">	<!-- 应用外键ID -->
+				AND TAF.FK_APP_TID = #{fkAppTid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!--  -->
+				AND TAF.PROFILE_ID = #{profileId}
+			</if>
+			<if test="flow != null and flow != '' ">	<!--  -->
+				AND TAF.FLOW = #{flow}
+			</if>
+			<if test="ep != null ">	<!-- 同组中某一个 -->
+				AND TAF.EP = #{ep}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!--  -->
+				AND TM.MODEL_NO = #{modelNo}
+			</if>
+			<if test="appId != null and appId != '' ">	<!--  -->
+				AND TAF.APP_ID = #{appId}
+			</if>
+			<if test="appVersion != null and appVersion != '' ">	<!--  -->
+				AND TAF.APP_VERSION = #{appVersion}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键ID -->
+				AND TM.TID = #{fkModelTid}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAF.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAF.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TAF.CREATE_TIME DESC, TAF.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AppFunctionEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP_FUNCTION TAF
+         LEFT JOIN T_ATTRIBUTE TA ON (TAF.PROFILE_ID = TA.PROFILE_ID)
+         LEFT JOIN T_MODEL TM ON (TAF.MODEL_NO = TM.TID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAF.TID = #{tid}
+			</if>
+			<if test="fkAppTid != null and fkAppTid != '' ">	<!-- 应用外键ID -->
+				AND TAF.FK_APP_TID = #{fkAppTid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!--  -->
+				AND TAF.PROFILE_ID = #{profileId}
+			</if>
+			<if test="flow != null and flow != '' ">	<!--  -->
+				AND TAF.FLOW = #{flow}
+			</if>
+			<if test="ep != null ">	<!-- 同组中某一个 -->
+				AND TAF.EP = #{ep}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!--  -->
+				AND TM.MODEL_NO = #{modelNo}
+			</if>
+			<if test="appId != null and appId != '' ">	<!--  -->
+				AND TAF.APP_ID = #{appId}
+			</if>
+			<if test="appVersion != null and appVersion != '' ">	<!--  -->
+				AND TAF.APP_VERSION = #{appVersion}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键ID -->
+				AND TM.TID = #{fkModelTid}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAF.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAF.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AppFunctionEntity">
+    	INSERT INTO T_APP_FUNCTION(
+    		
+			TID,
+			FK_APP_TID,
+			PROFILE_ID,
+			APP_ID,
+			APP_VERSION,
+			FLOW,
+			MODEL_NO,
+			EP,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkAppTid},
+			#{profileId},
+			#{appId},
+			#{appVersion},
+			#{flow},
+			#{modelNo},
+			#{ep},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AppFunctionEntity">
+	   UPDATE T_APP_FUNCTION
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkAppTid != null and fkAppTid != '' ">	<!-- 应用外键ID -->
+				,FK_APP_TID = #{fkAppTid}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号ID -->
+				,MODEL_NO = #{modelNo}
+			</if>
+			<if test="ep != null ">	<!-- 同组中某一个 -->
+				,EP = #{ep}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_APP_FUNCTION WHERE TID = #{value}
+    </delete>
+    
+    <!-- 根据外键删除 -->
+    <delete id="deleteByFK" parameterType="com.yw.common.beansUtils.entity.AppFunctionEntity">
+   		DELETE FROM T_APP_FUNCTION
+   		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+   			AND MODEL_NO = #{modelNo}
+   		</trim>
+   </delete>
+   
+   <!--  -->
+   <select id="findAppFunctionBySn" parameterType="com.yw.common.beansUtils.entity.AppFunctionEntity" resultMap="resultMapAppFunction">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPFUNCTION"/>
+         FROM T_APP_FUNCTION TAF 
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			AND APP_ID = #{appId} AND MODEL_NO IN (SELECT MODEL_NO FROM T_DEVICE_LICENSE  WHERE SN = #{sn})
+		</trim>
+	</select>
+</mapper>

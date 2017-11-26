@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 机构 -->
+<mapper namespace="com.yw.webplatform.mapper.OrganizationEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.OrganizationEntity" id="resultMapOrganization">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="orgName" column="ORG_NAME"/>	<!-- 机构名称 -->
+		<result property="orgCode" column="ORG_CODE"/>	<!-- 机构编码 -->
+		<result property="address" column="ADDRESS"/>	<!-- 地址 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_ORGANIZATION">
+		
+		TOTO.TID,
+		TOTO.ORG_NAME,
+		TOTO.ORG_CODE,
+		TOTO.ADDRESS,
+		TOTO.CREATE_TIME,
+		TOTO.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.OrganizationEntity" resultMap="resultMapOrganization">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_ORGANIZATION"/>
+         FROM T_ORGANIZATION TOTO
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TOTO.TID = #{tid}
+			</if>
+			<if test="orgName != null and orgName != '' ">	<!-- 机构名称 -->
+				AND TOTO.ORG_NAME = #{orgName}
+			</if>
+			<if test="orgCode != null and orgCode != '' ">	<!-- 机构编码 -->
+				AND TOTO.ORG_CODE = #{orgCode}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				AND TOTO.ADDRESS = #{address}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TOTO.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TOTO.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TOTO.CREATE_TIME DESC, TOTO.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.OrganizationEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_ORGANIZATION TOTO
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TOTO.TID = #{tid}
+			</if>
+			<if test="orgName != null and orgName != '' ">	<!-- 机构名称 -->
+				AND TOTO.ORG_NAME = #{orgName}
+			</if>
+			<if test="orgCode != null and orgCode != '' ">	<!-- 机构编码 -->
+				AND TOTO.ORG_CODE = #{orgCode}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				AND TOTO.ADDRESS = #{address}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TOTO.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TOTO.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.OrganizationEntity">
+    	INSERT INTO T_ORGANIZATION(
+    		
+			TID,
+			ORG_NAME,
+			ORG_CODE,
+			ADDRESS,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{orgName},
+			#{orgCode},
+			#{address},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.OrganizationEntity">
+	   UPDATE T_ORGANIZATION
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="orgName != null and orgName != '' ">	<!-- 机构名称 -->
+				,ORG_NAME = #{orgName}
+			</if>
+			<if test="orgCode != null and orgCode != '' ">	<!-- 机构编码 -->
+				,ORG_CODE = #{orgCode}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				,ADDRESS = #{address}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_ORGANIZATION WHERE TID = #{value}
+    </delete>
+    
+    <!-- 查询编码 -->
+    <select id="getMaxCode" parameterType="com.yw.common.beansUtils.entity.OrganizationEntity" resultType="int">  
+         SELECT 
+		 	MAX(CONVERT(ORG_CODE,SIGNED)) + 1 AS MAX
+		 FROM T_ORGANIZATION
+    </select>
+</mapper>

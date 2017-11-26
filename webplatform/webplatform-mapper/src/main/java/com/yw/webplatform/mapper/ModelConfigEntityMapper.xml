@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 型号配置信息 -->
+<mapper namespace="com.yw.webplatform.mapper.ModelConfigEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ModelConfigEntity" id="resultMapModelConfig">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkModelTid" column="FK_MODEL_TID"/>	<!-- 型号外键 -->
+		<result property="configId" column="CONFIG_ID"/>		<!-- 配置ID -->
+		<result property="configName" column="CONFIG_NAME"/>	<!-- 配置名称 -->
+		<result property="configType" column="CONFIG_TYPE"/>	<!-- 配置类型 -->
+		<result property="flows" column="FLOWS"/>					<!-- 流程 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MODELCONFIG">
+		
+		TMC.TID,
+		TMC.FK_MODEL_TID,
+		TMC.CONFIG_ID,
+		TMC.CONFIG_NAME,
+		TMC.CONFIG_TYPE,
+		TMC.FLOWS,
+		TMC.CREATE_TIME,
+		TMC.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.ModelConfigEntity" resultMap="resultMapModelConfig">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MODELCONFIG"/>
+         FROM T_MODEL_CONFIG TMC
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TMC.TID = #{tid}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键 -->
+				AND TMC.FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="configId != null and configId != '' ">	<!-- 配置ID -->
+				AND TMC.CONFIG_ID = #{configId}
+			</if>
+			<if test="configName != null and configName != '' ">	<!-- 配置名称 -->
+				AND TMC.CONFIG_NAME = #{configName}
+			</if>
+			<if test="configType != null ">	<!-- 配置类型 -->
+				AND TMC.CONFIG_TYPE = #{configType}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TMC.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TMC.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TMC.CREATE_TIME DESC, TMC.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.ModelConfigEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_MODEL_CONFIG TMC
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TMC.TID = #{tid}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键 -->
+				AND TMC.FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="configId != null and configId != '' ">	<!-- 配置ID -->
+				AND TMC.CONFIG_ID = #{configId}
+			</if>
+			<if test="configName != null and configName != '' ">	<!-- 配置名称 -->
+				AND TMC.CONFIG_NAME = #{configName}
+			</if>
+			<if test="configType != null ">	<!-- 配置类型 -->
+				AND TMC.CONFIG_TYPE = #{configType}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TMC.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TMC.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.ModelConfigEntity">
+    	INSERT INTO T_MODEL_CONFIG(
+    		
+			TID,
+			FK_MODEL_TID,
+			CONFIG_ID,
+			CONFIG_NAME,
+			CONFIG_TYPE,
+			FLOWS,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkModelTid},
+			#{configId},
+			#{configName},
+			#{configType},
+			#{flows},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.ModelConfigEntity">
+	   UPDATE T_MODEL_CONFIG
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号外键 -->
+				,FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="configId != null and configId != '' ">	<!-- 配置ID -->
+				,CONFIG_ID = #{configId}
+			</if>
+			<if test="configName != null and configName != '' ">	<!-- 配置名称 -->
+				,CONFIG_NAME = #{configName}
+			</if>
+			<if test="configType != null ">	<!-- 配置类型 -->
+				,CONFIG_TYPE = #{configType}
+			</if>
+			<if test="flows != null ">	<!-- 流程 -->
+				,FLOWS = #{flows}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_MODEL_CONFIG WHERE TID = #{value}
+    </delete>
+</mapper>

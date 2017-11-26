@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="  
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+	<!-- 读取SQL注入文件路径 -->
+    <bean id="wall-filter-config" class="com.alibaba.druid.wall.WallConfig" init-method="init">
+      <!-- 指定配置装载的目录  -->
+      <property name="dir" value="classpath:/com/yw/web/common" />
+  	</bean>
+	<!-- 配置防御SQL注入攻击,配置成功后,在监控界面:SQL防火墙可以看到具体数据 -->
+    <bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+      	<property name="dbType" value="mysql" />
+      	<property name="config" ref="wall-filter-config" />
+ 	</bean>
+  	<!-- 数据源的配置 --> 
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close"> 
+       
+        <property name="driverClassName" value="${driver}" /> 
+        <property name="url" value="${url}" /> 
+        <property name="username" value="${user}" /> 
+        <property name="password" value="${password}" /> 
+       
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="5" />
+        <property name="minIdle" value="5" /> 
+        <property name="maxActive" value="200" />
+
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000" />
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+
+        <property name="validationQuery" value="SELECT 'x'" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+        
+	    <!-- *********************** 阿里巴巴:druid **************************************** -->
+	    <property name="removeAbandoned" value="true" /> <!-- 打开removeAbandoned功能 -->
+	    <property name="removeAbandonedTimeout" value="1800" /> <!-- 1800秒，也就是30分钟 -->
+	    <property name="logAbandoned" value="true" /> <!-- 关闭abanded连接时输出错误日志 -->
+	    
+	    <!-- log4j:打印日志, config:解密加密的数据 -->
+	    <property name="proxyFilters">
+	        <list>
+	            <ref bean="stat-filter"/>
+	            <ref bean="log-filter"/>
+	            <ref bean="wall-filter"/>
+	        </list>
+	    </property>
+	    <!-- config:启动密码解密功能，wall:启动SQL注入监控 -->
+	    <property name="filters" value="config,wall" />
+	    <!-- 开启/关闭解密被阿里云加密的数据,开启：true,关闭：false,如：密码 -->
+	    <property name="connectionProperties" value="config.decrypt=true" />
+	    <property name="statLogger" ref="myStatLogger" />
+	    <property name="timeBetweenLogStatsMillis" value="3600000" />
+    </bean>
+    <!--====事务相关控制==--> 
+    <bean id="transactionManager" 
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+        <property name="dataSource" ref="dataSource" /> 
+    </bean> 
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!-- MyBatis sqlSessionFactory 配置 mybatis--> 
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> 
+        <property name="dataSource" ref="dataSource" />
+        <!-- 扫描所有MAPPER文件 -->
+        <property name="mapperLocations" value="classpath*:com/yw/*/*/mapper/*mapper.xml" />
+		<property name="typeAliasesPackage" value="com.isea533.ssm.model"/>
+		<property name="plugins">
+		    <array>
+		      <bean class="com.github.pagehelper.PageHelper">
+		        <property name="properties">
+		          <value>
+		            dialect=mysql
+		          </value>
+		        </property>
+		      </bean>
+		    </array>
+		</property>
+    </bean>
+   <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.yw.**.mapper" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+    
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    	<property name="dataSource" ref="dataSource"></property>
+ 	</bean>
+</beans>

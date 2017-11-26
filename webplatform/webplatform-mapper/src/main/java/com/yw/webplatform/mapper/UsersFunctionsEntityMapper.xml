@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 权限信息 -->
+<mapper namespace="com.yw.webplatform.mapper.UsersFunctionsEntityMapper">
+
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersFunctionsEntity" id="resultMap">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="functionCode" column="FUNCTION_CODE"/>	<!-- 权限编码 -->
+		<result property="functionName" column="FUNCTION_NAME"/>	<!-- 权限名称 -->
+		<result property="uri" column="URI"/>	<!-- ACTION -->
+		<result property="functionLevel" column="FUNCTION_LEVEL"/>	<!-- 菜单级别 -->
+		<result property="parentCode" column="PARENT_CODE"/>	<!-- 权限编码 -->
+		<result property="displayOrder" column="DISPLAY_ORDER"/>	<!-- 菜单显示 -->
+		<result property="functionType" column="FUNCTION_TYPE"/>	<!-- 菜单类型 -->
+		<result property="functionSeq" column="FUNCTION_SEQ"/>	<!-- 显示顺序 -->
+		<result property="functionDesc" column="FUNCTION_DESC"/>	<!-- 菜单说明 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<!-- 查询父级菜单,根据子记录的 PARENT_CODE 字段来查询父记录 -->
+		<association property="parentEntity" column="PARENT_CODE" 
+							javaType="com.yw.common.beansUtils.entity.UsersFunctionsEntity"
+							select="findParent"/>
+	</resultMap>
+	
+	<sql id="SELECT_PARAMS_FUNCTIONS">
+		MUF.TID,
+		MUF.FUNCTION_CODE,
+		MUF.FUNCTION_NAME,
+		MUF.URI,
+		MUF.FUNCTION_LEVEL,
+		MUF.PARENT_CODE,
+		MUF.DISPLAY_ORDER,
+		MUF.FUNCTION_TYPE,
+		MUF.FUNCTION_SEQ,
+		MUF.FUNCTION_DESC,
+		MUF.CREATE_TIME,
+		MUF.UPDATE_TIME
+	</sql>
+	
+     <!-- 根据条件，查询多条数据 -->
+     <select id="findAll" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity" resultMap="resultMap">  
+         SELECT
+         	<include refid="SELECT_PARAMS_FUNCTIONS"/>
+         FROM T_USERS_FUNCTIONS  MUF
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+       		  <choose>
+	          	<when test="functionCodeTemp != null and functionCodeTemp != '' ">
+	          		 AND MUF.FUNCTION_CODE &lt;&gt; #{functionCodeTemp} <!-- 过滤掉自己 -->
+	          	</when>
+	          	<otherwise>
+	          		AND MUF.FUNCTION_CODE &lt;&gt; '0'
+	          </otherwise>
+	          </choose>
+         	  <if test="tid != null and tid != '' ">
+	         	  	AND MUF.TID = #{tid}
+	          </if>
+	          <if test="functionType != null ">
+	         	  	AND MUF.FUNCTION_TYPE = #{functionType}
+	          </if>
+         	  <if test="functionLevel != null ">
+	          	  	AND MUF.FUNCTION_LEVEL = #{functionLevel}
+	          </if>
+	          <if test="functionCode != null and functionCode != '' ">
+	         	  	AND MUF.FUNCTION_CODE = #{functionCode}
+	          </if>
+	          <if test="parentEntity != null and parentEntity != '' ">
+	          	  	AND MUF.PARENT_CODE = #{parentEntity.functionCode}
+	          </if>
+	          <if test="parentFunctionCode != null and parentFunctionCode != '' ">
+	          		AND MUF.PARENT_CODE = #{parentFunctionCode}
+	          </if>
+	          <if test="uri != null and uri != '' ">
+	          		AND MUF.URI = #{uri}
+	          </if>
+	          <if test="functionName != null and functionName != '' ">
+	          		AND LOWER(MUF.FUNCTION_NAME) LIKE   LOWER('%${functionName}%')
+	          </if>
+	          <if test="startSearchTime != null and startSearchTime != '' ">
+			   		AND MUF.CREATE_TIME &gt;= #{startSearchTime}
+			  </if>
+			  <if test="endSearchTime != null and endSearchTime != '' ">
+			  		AND MUF.CREATE_TIME &lt; #{endSearchTime}
+			  </if>
+        </trim>
+        ORDER BY CREATE_TIME DESC, FUNCTION_SEQ DESC
+    </select>
+    
+    <!-- 获取数量 -->
+	<select id="getCount" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity" resultType="int">
+		SELECT 
+			COUNT(1)
+		FROM T_USERS_FUNCTIONS MUF
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	          <choose>
+	          	<when test="functionCodeTemp != null and functionCodeTemp != '' ">
+	          		 AND MUF.FUNCTION_CODE &lt;&gt; #{functionCodeTemp} <!-- 过滤掉自己 -->
+	          	</when>
+	          	<otherwise>
+	          		AND MUF.FUNCTION_CODE &lt;&gt; '0'
+	          </otherwise>
+	          </choose>
+         	  <if test="tid != null and tid != '' ">
+	         	  	AND MUF.TID = #{tid}
+	          </if>
+	          <if test="functionType != null ">
+	         	  	AND MUF.FUNCTION_TYPE = #{functionType}
+	          </if>
+         	  <if test="functionLevel != null ">
+	          	  	AND MUF.FUNCTION_LEVEL = #{functionLevel}
+	          </if>
+	          <if test="functionCode != null and functionCode != '' ">
+	         	  	AND MUF.FUNCTION_CODE = #{functionCode}
+	          </if>
+	          <if test="parentEntity != null and parentEntity != '' ">
+	          	  	AND MUF.PARENT_CODE = #{parentEntity.functionCode}
+	          </if>
+	          <if test="parentFunctionCode != null and parentFunctionCode != '' ">
+	          		AND MUF.PARENT_CODE = #{parentFunctionCode}
+	          </if>
+	          <if test="uri != null and uri != '' ">
+	          		AND MUF.URI = #{uri}
+	          </if>
+	          <if test="functionName != null and functionName != '' ">
+	          		AND LOWER(MUF.FUNCTION_NAME) LIKE   LOWER('%${functionName}%')
+	          </if>
+	          <if test="startSearchTime != null and startSearchTime != '' ">
+			   		AND MUF.CREATE_TIME &gt;= #{startSearchTime}
+			  </if>
+			  <if test="endSearchTime != null and endSearchTime != '' ">
+			  		AND MUF.CREATE_TIME &lt; #{endSearchTime}
+			  </if>
+        </trim>
+	</select>
+    
+    <!-- 查询父级菜单 -->
+    <select id="findParent" parameterType="java.lang.String" resultMap="resultMap">  
+         SELECT
+         	<include refid="SELECT_PARAMS_FUNCTIONS"/>
+         FROM T_USERS_FUNCTIONS  MUF
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         		FUNCTION_CODE = #{value}
+        </trim>
+    </select>
+    
+    <!-- 添加用户 -->
+   <insert id="insert" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity">
+   	INSERT INTO T_USERS_FUNCTIONS (
+   			TID,
+			FUNCTION_CODE,
+			FUNCTION_NAME,
+			URI,
+			FUNCTION_LEVEL,
+			PARENT_CODE,
+			DISPLAY_ORDER,
+			FUNCTION_TYPE,
+			FUNCTION_SEQ,
+			FUNCTION_DESC,
+			CREATE_TIME
+   		) VALUES(
+   		
+   			#{tid},
+			#{functionCode},
+			#{functionName},
+			#{uri},
+			#{functionLevel},
+			#{parentEntity.functionCode},
+			#{displayOrder},
+			#{functionType},
+			#{functionSeq},
+			#{functionDesc},
+			SYSDATE()
+			
+   		 	)
+   </insert>
+	
+	
+	<!-- 删除数据 -->
+   <delete id="delete" parameterType="java.lang.String">
+   		DELETE FROM T_USERS_FUNCTIONS
+   		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+   				TID = #{value}
+   		</trim>
+   </delete>
+    
+    <!-- 根据条件ID查询 -->
+	<select id="findOne" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity" resultMap="resultMap">
+		SELECT 
+			<include refid="SELECT_PARAMS_FUNCTIONS"/>
+		FROM T_USERS_FUNCTIONS MUF
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	         	 FUNCTION_CODE = #{functionCode}
+        </trim>
+	</select>
+    
+    <!-- 更新用户 -->
+   <update id="updateById" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity">
+	   	UPDATE T_USERS_FUNCTIONS
+	   	<trim prefix="SET" suffixOverrides=",">
+	   		 <if test="functionCode != null and functionCode != '' ">
+				FUNCTION_CODE = #{functionCode},
+			 </if>
+			  <if test="functionName != null and functionName != '' ">
+				FUNCTION_NAME = #{functionName},
+			 </if>
+			 <if test="uri != null and uri != '' ">
+				URI = #{uri},
+			 </if>
+			 <if test="functionLevel != null ">
+				FUNCTION_LEVEL = #{functionLevel},
+			</if>
+			<if test="displayOrder != null ">
+				DISPLAY_ORDER = #{displayOrder},
+			</if>
+			  <if test="parentEntity != null and parentEntity != '' ">
+	          	PARENT_CODE = #{parentEntity.functionCode},
+	          </if>
+			<if test="functionType != null ">
+				FUNCTION_TYPE = #{functionType},
+			</if>
+			<if test="functionSeq != null ">
+				FUNCTION_SEQ = #{functionSeq},
+			</if>
+			<if test="functionDesc != null and functionDesc != '' ">
+				FUNCTION_DESC = #{functionDesc},
+			</if>
+			UPDATE_TIME = sysdate()
+	   	</trim>
+	   	<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   	</trim>
+   </update>
+    
+    
+    <!-- 根据用户ID，得到权限 -->
+    <select id="findByUserId" parameterType="com.yw.common.beansUtils.entity.UserInfoEntity" resultMap="resultMap">  
+         SELECT
+         
+         	<include refid="SELECT_PARAMS_FUNCTIONS"/>
+         	
+         FROM T_USERS_FUNCTIONS  MUF
+         	LEFT JOIN T_USERS_ROLES_FUNCTIONS TRF ON (MUF.TID = TRF.T_FUNCTIONS_TID)
+			LEFT JOIN T_USERS_ROLES TR ON (TRF.T_ROLES_TID = TR.TID)
+			LEFT JOIN T_USERS_ROLES_USERS TRU ON (TRU.t_roles_tid = TR.TID)
+        <where>
+        		FUNCTION_CODE &lt;&gt; '0'
+         		AND TRU.T_USERS_TID = #{tid}
+         		AND DISPLAY_ORDER = 1 <!-- 过滤不显示的菜单 -->
+        </where>
+        ORDER BY MUF.FUNCTION_SEQ ASC
+    </select>
+    
+    <!-- 查询编码 -->
+    <select id="getMaxCode" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity" resultType="int">  
+         SELECT 
+		 	MAX(FUNCTION_CODE) + 1 AS MAX
+		 FROM T_USERS_FUNCTIONS TD ORDER BY FUNCTION_CODE DESC LIMIT 0,1
+    </select>
+    
+    <update id="updateParentCodeById" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity">
+	   	UPDATE T_USERS_FUNCTIONS
+
+       <trim prefix="SET" prefixOverrides=",">
+           ,PARENT_CODE = #{parentFunctionCode}
+           ,UPDATE_TIME = SYSDATE()
+       </trim>
+	   	<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   	</trim>
+   </update>
+</mapper>

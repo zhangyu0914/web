@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 报表 -->
+<mapper namespace="com.yw.webplatform.mapper.ReportDataEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ReportDataEntity" id="resultMapReportData">
+		
+		<result property="dataName" column="DATA_NAME"/>	<!--  -->
+		<result property="firstData" column="FIRST_DATA"/>	<!--  -->
+		<result property="secondData" column="SECOND_DATA"/>	<!--  -->
+		<result property="thirdData" column="THIRD_DATA"/>	<!--  -->
+
+	</resultMap>
+
+    <!-- 设备许可证应用许可证报表 -->
+    <select id="findAppLicenseReport" parameterType="java.util.Map" resultMap="resultMapReportData">  
+        SELECT 
+			TAL.APP_REPORT_NAME AS DATA_NAME,
+			DATEDIFF(TAL.END_TIME,TAL.BEGIN_TIME)  AS FIRST_DATA,
+			DATEDIFF(SYSDATE(),TAL.BEGIN_TIME)  AS SECOND_DATA
+		FROM T_APP_LICENSE TAL ORDER BY TAL.CREATE_TIME ASC, TAL.APP_REPORT_NAME
+    </select>
+    
+    <!-- 型号下的设备使用数量/未使用数量 -->
+    <select id="findDeviceLicenseReport" parameterType="java.util.Map" resultMap="resultMapReportData">  
+       SELECT TT.* FROM 
+		(
+		 SELECT 
+		        
+					TM.MODEL_CODE AS DATA_NAME,
+					COUNT(TDL.MODEL_NO) AS FIRST_DATA,
+					IFNULL((SELECT COUNT(1) FROM T_DEVICE TD WHERE TD.MODEL_NO = TM.MODEL_NO),0)  AS SECOND_DATA
+		
+				FROM T_MODEL TM 
+				LEFT JOIN T_DEVICE_LICENSE TDL ON (TDL.MODEL_NO = TM.MODEL_NO)
+				
+		
+				GROUP BY DATA_NAME
+		) TT WHERE TT.FIRST_DATA &gt; 0 ORDER BY FIRST_DATA DESC
+    </select>
+    
+    <!-- 设备正常/异常 -->
+    <select id="findDeviceStatus" parameterType="java.util.Map" resultMap="resultMapReportData">  
+        SELECT 
+			'设备正常/异常' AS DATA_NAME,
+			IFNULL((SELECT COUNT(TID) FROM T_DEVICE WHERE SN NOT IN (SELECT DISTINCT SN FROM T_WARNING)),0)  AS FIRST_DATA,
+			IFNULL((SELECT COUNT(DISTINCT SN) FROM T_WARNING WHERE WA_STATUS = 0),0)  AS SECOND_DATA
+		FROM DUAL
+    </select>
+    <!-- 设备在线/离线状态 -->
+    <select id="findDeviceOnlineStatus" parameterType="java.util.Map" resultMap="resultMapReportData">  
+        SELECT 
+			'设备在线/离线' AS DATA_NAME,
+			IFNULL((SELECT COUNT(TID) FROM T_DEVICE WHERE EQ_STATUS = 0),0)  AS FIRST_DATA,
+			IFNULL((SELECT COUNT(TID) FROM T_DEVICE WHERE EQ_STATUS = 1),0)  AS SECOND_DATA
+			
+		FROM DUAL
+    </select>
+    
+    <select id="findView" parameterType="java.util.Map" resultMap="resultMapReportData">
+		SELECT
+			COUNT(TD.DEVICE_TYPE) AS FIRST_DATA,
+			TSL.EQ_NAME AS DATA_NAME
+		FROM T_DEVICE TD
+		LEFT JOIN T_SN_LIST TSL ON (TD.DEVICE_TYPE = TSL.DEVICE_TYPE)
+		WHERE TSL.EQ_TYPE = 0
+		GROUP BY TD.DEVICE_TYPE 
+    </select>
+    <select id="findGateway" parameterType="java.util.Map" resultMap="resultMapReportData">  
+        SELECT
+			COUNT(TD.DEVICE_TYPE) AS FIRST_DATA,
+			TSL.EQ_NAME AS DATA_NAME
+		FROM T_DEVICE TD
+		LEFT JOIN T_SN_LIST TSL ON (TD.DEVICE_TYPE = TSL.DEVICE_TYPE)
+		WHERE TSL.EQ_TYPE = 1
+		GROUP BY TD.DEVICE_TYPE 
+    </select>
+    <select id="getPlatformAppDAta" parameterType="java.util.Map" resultMap="resultMapReportData">  
+        SELECT
+			MEMORY AS FIRST_DATA,
+			DISK AS SECOND_DATA,
+			CPU AS THIRD_DATA
+		FROM T_PLATFORM_APP ORDER BY CREATE_TIME DESC LIMIT 0,1
+    </select>
+</mapper>

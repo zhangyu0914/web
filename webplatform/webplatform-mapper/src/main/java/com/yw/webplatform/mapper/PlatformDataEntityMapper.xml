@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 平台数据 -->
+<mapper namespace="com.yw.webplatform.mapper.PlatformDataEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.PlatformDataEntity" id="resultMapPlatformData">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="pdata" column="PDATA"/>	<!-- 数据 -->
+		<result property="dataTime" column="DATA_TIME"/>	<!-- 数据时间 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		<result property="dateHour" column="DATE_HOUR"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_PLATFORMDATA">
+		
+		TPD.TID,
+		TPD.PDATA,
+		TPD.DATA_TIME,
+		TPD.REMARK,
+		TPD.CREATE_TIME,
+		TPD.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity" resultMap="resultMapPlatformData">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_PLATFORMDATA"/>
+         FROM T_PLATFORM_DATA TPD
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TPD.TID = #{tid}
+			</if>
+			<if test="pdata != null ">	<!-- 数据 -->
+				AND TPD.PDATA = #{pdata}
+			</if>
+			<if test="dataTime != null and dataTime != '' ">	<!-- 数据时间 -->
+				AND TPD.DATA_TIME = #{dataTime}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TPD.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TPD.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TPD.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TPD.CREATE_TIME DESC, TPD.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_PLATFORM_DATA TPD
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TPD.TID = #{tid}
+			</if>
+			<if test="pdata != null ">	<!-- 数据 -->
+				AND TPD.PDATA = #{pdata}
+			</if>
+			<if test="dataTime != null and dataTime != '' ">	<!-- 数据时间 -->
+				AND TPD.DATA_TIME = #{dataTime}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TPD.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TPD.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TPD.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity">
+    	INSERT INTO T_PLATFORM_DATA(
+    		
+			TID,
+			PDATA,
+			DATA_TIME,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{pdata},
+			#{dataTime},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity">
+	   UPDATE T_PLATFORM_DATA
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="pdata != null ">	<!-- 数据 -->
+				,PDATA = #{pdata}
+			</if>
+			<if test="dataTime != null and dataTime != '' ">	<!-- 数据时间 -->
+				,DATA_TIME = #{dataTime}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_PLATFORM_DATA WHERE TID = #{value}
+    </delete>
+    
+    <!--  -->
+    <select id="findPatformReport" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity" resultMap="resultMapPlatformData">  
+		    
+		SELECT 
+			SUM(PDATA) AS PDATA,
+			DATE_HOUR  
+		FROM (
+				SELECT 
+			    	<include refid="SELECT_PARAMS_PLATFORMDATA"/>,
+         			DATE_FORMAT(DATA_TIME,'%H:00') AS DATE_HOUR
+				FROM T_PLATFORM_DATA TPD WHERE DATE_FORMAT(TPD.DATA_TIME,'%Y%M%D') = DATE_FORMAT(SYSDATE(),'%Y%M%D') 
+				ORDER BY TPD.DATA_TIME ASC
+			) TT  GROUP BY DATE_HOUR
+    </select>
+    
+    <!-- 查询设备上线总数 -->
+    <select id="findDeviceOnLineCount" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity" resultMap="resultMapPlatformData">  
+		    
+		SELECT 
+			COUNT(DATE_HOUR) AS PDATA,
+			DATE_HOUR  
+		FROM (
+				SELECT 
+         			DATE_FORMAT(CREATE_TIME,'%H:00') AS DATE_HOUR
+				FROM t_device TPD WHERE DATE_FORMAT(TPD.CREATE_TIME,'%Y%M%D') = DATE_FORMAT(SYSDATE(),'%Y%M%D') 
+				
+			) TT  GROUP BY DATE_HOUR
+    </select>
+    
+    <!-- MQTT消息推送次数 -->
+    <select id="findMqtt" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity" resultMap="resultMapPlatformData">
+
+		SELECT 
+			COUNT(DATE_HOUR) AS PDATA,
+			MAX(DATE_HOUR) AS DATE_HOUR 
+		FROM
+			(
+				SELECT
+					DATE_FORMAT(CREATE_TIME,'%H:00') AS DATE_HOUR
+				FROM T_PUSH_MSG TPD ORDER BY CREATE_TIME DESC
+			) TT GROUP BY DATE_HOUR
+    </select>
+    
+    <!-- 第三方应用调用次数 -->
+    <select id="findInerfaceLogCount" parameterType="com.yw.common.beansUtils.entity.PlatformDataEntity" resultMap="resultMapPlatformData">
+
+		SELECT 
+			COUNT(DATE_HOUR) AS PDATA,
+			MAX(DATE_HOUR) AS DATE_HOUR 
+		FROM
+			(
+				SELECT
+					DATE_FORMAT(CREATE_TIME,'%H:00') AS DATE_HOUR
+				FROM T_INTERFACE_LOG TPD ORDER BY CREATE_TIME
+			) TT GROUP BY DATE_HOUR
+    </select>
+</mapper>

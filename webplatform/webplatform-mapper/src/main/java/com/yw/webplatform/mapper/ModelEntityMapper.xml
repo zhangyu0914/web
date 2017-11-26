@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 设备型号表 -->
+<mapper namespace="com.yw.webplatform.mapper.ModelEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ModelEntity" id="resultMapModel">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="modelName" column="MODEL_NAME"/>	<!-- 型号名称 -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 型号 -->
+		<result property="modelCode" column="MODEL_CODE"/>	<!-- 型号编码 -->
+		<result property="modelVersion" column="MODEL_VERSION"/>	<!-- 型号版本 -->
+		<result property="modelFlag" column="MODEL_FLAG"/>	<!--  -->
+		<result property="eqType" column="EQ_TYPE"/>	<!-- 设备类型 -->
+		<result property="tradeCode" column="TRADE_CODE"/>	<!-- 企业编码 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="tradeName" column="TRADE_NAME"/>	<!-- 厂商名称 -->
+		<result property="tradeCode" column="TRADE_CODE"/>	<!-- 厂商代码 -->
+		
+		<!-- 多对多:得到属性的型号 -->
+		<collection property="attList" column="TID"  select="findAttByModelId" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.AttributeEntity"/>
+	</resultMap>
+
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AttributeEntity" id="resultMapAttribute">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="profileId" column="PROFILE_ID"/>	<!-- PROFILE_ID -->
+		<result property="attName" column="ATT_NAME"/>	<!-- 属性名称 -->
+		<result property="attKey" column="ATT_KEY"/>	<!-- 属性键 -->
+		<result property="attType" column="ATT_TYPE"/>	<!-- 属性类型 -->
+		<result property="valueType" column="VALUE_TYPE"/>	<!-- 值类型 -->
+		<result property="valueDemand" column="VALUE_DEMAND"/>	<!-- 值要求 -->
+		<result property="valueRegex" column="VALUE_REGEX"/>	<!-- 正则规则 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+	</resultMap>
+	
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MODEL">
+		
+		TM.TID,
+		TM.MODEL_NAME,
+		TM.MODEL_NO,
+		TM.MODEL_CODE,
+		TM.MODEL_VERSION,
+		TM.MODEL_FLAG,
+		TM.EQ_TYPE,
+		TM.TRADE_CODE,
+		TM.REMARK,
+		TM.CREATE_TIME,
+		TM.UPDATE_TIME
+
+	</sql>
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_ATTRIBUTE">
+		
+		TA.TID,
+		TA.PROFILE_ID,
+		TA.ATT_NAME,
+		TA.ATT_KEY,
+		TA.ATT_TYPE,
+		TA.VALUE_TYPE,
+		TA.VALUE_DEMAND,
+		TA.VALUE_REGEX,
+		TA.REMARK,
+		TA.CREATE_TIME,
+		TA.UPDATE_TIME
+
+	</sql>
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.ModelEntity" resultMap="resultMapModel">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MODEL"/>,
+         	TR.TRADE_NAME,
+         	TR.TRADE_CODE
+         	
+         FROM T_MODEL TM
+         LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TM.TID = #{tid}
+			</if>
+			<if test="modelName != null and modelName != '' ">	<!-- 型号名称 -->
+				AND TM.MODEL_NAME = #{modelName}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				AND TM.MODEL_NO = #{modelNo}
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 型号 -->
+				AND TM.MODEL_CODE = #{modelCode}
+			</if>
+			<if test="modelVersion != null ">	<!--版本号 -->
+				AND TM.MODEL_VERSION = #{modelVersion}
+			</if>
+			<if test="modelFlag != null ">	<!-- -->
+				AND TM.MODEL_FLAG = #{modelFlag}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TM.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TM.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TM.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				AND TR.TRADE_NAME = #{tradeName}
+			</if>
+			<if test="tradeCode != null and tradeCode != '' ">	<!-- 厂商代码 -->
+				AND TR.TRADE_CODE = #{tradeCode}
+			</if>
+         </trim>
+         ORDER BY TM.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.ModelEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_MODEL TM
+         LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TM.TID = #{tid}
+			</if>
+			<if test="modelName != null and modelName != '' ">	<!-- 型号名称 -->
+				AND TM.MODEL_NAME = #{modelName}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				AND TM.MODEL_NO = #{modelNo}
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 型号 -->
+				AND TM.MODEL_CODE = #{modelCode}
+			</if>
+			<if test="modelVersion != null ">	<!--版本号 -->
+				AND TM.MODEL_VERSION = #{modelVersion}
+			</if>
+			<if test="modelFlag != null ">	<!-- -->
+				AND TM.MODEL_FLAG = #{modelFlag}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TM.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TM.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TM.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			<if test="tradeName != null and tradeName != '' ">	<!-- 厂商名称 -->
+				AND TR.TRADE_NAME = #{tradeName}
+			</if>
+			<if test="tradeCode != null and tradeCode != '' ">	<!-- 厂商代码 -->
+				AND TR.TRADE_CODE = #{tradeCode}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.ModelEntity">
+    	INSERT INTO T_MODEL(
+    		
+			TID,
+			MODEL_NAME,
+			MODEL_NO,
+			MODEL_CODE,
+			MODEL_VERSION,
+			MODEL_FLAG,
+			EQ_TYPE,
+			TRADE_CODE,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{modelName},
+			#{modelNo},
+			#{modelCode},
+			#{modelVersion},
+			#{modelFlag},
+			#{eqType},
+			#{tradeCode},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.ModelEntity">
+	   UPDATE T_MODEL
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+			<if test="modelName != null and modelName != '' ">	<!-- 型号名称 -->
+				,MODEL_NAME = #{modelName}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				,MODEL_NO = #{modelNo}
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 型号编码 -->
+				,MODEL_CODE = #{modelCode}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_MODEL WHERE TID = #{value}
+    </delete>
+    
+    <!-- 得到属性的型号 -->
+    <select id="findAttByModelId" parameterType="java.lang.String" resultMap="resultMapAttribute">
+   	 SELECT 
+   	  <include refid="SELECT_PARAMS_ATTRIBUTE"/>
+   	  FROM T_ATTRIBUTE TA
+   	 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   	TA.PROFILE_ID IN 
+		(
+			SELECT PROFILE_ID FROM T_MODEL_ATT WHERE FK_MODEL_TID =  #{value}
+		)
+   	 </trim>
+   </select>
+   
+   <!-- 查询所有厂商设备型号 -->
+    <select id="findAllModel" parameterType="com.yw.common.beansUtils.entity.ModelEntity" resultMap="resultMapModel">  
+         SELECT DISTINCT
+         	TM.MODEL_CODE
+         FROM T_MODEL TM ORDER BY TM.MODEL_CODE
+    </select>
+</mapper>

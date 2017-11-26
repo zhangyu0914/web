@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 设备与型号属性表 -->
+<mapper namespace="com.yw.webplatform.mapper.DeviceModelAttEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.DeviceModelAttEntity" id="resultMapDeviceModelAtt">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkDeviceTid" column="FK_DEVICE_TID"/>	<!-- 设备外键ID -->
+		<result property="fkModelAttTid" column="FK_MODEL_ATT_TID"/>	<!-- 型号属性外键ID -->
+		<result property="attValue" column="ATT_VALUE"/>	<!-- 属性值 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_DEVICEMODELATT">
+		
+		TDMA.TID,
+		TDMA.FK_DEVICE_TID,
+		TDMA.FK_MODEL_ATT_TID,
+		TDMA.ATT_VALUE,
+		TDMA.CREATE_TIME,
+		TDMA.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.DeviceModelAttEntity" resultMap="resultMapDeviceModelAtt">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_DEVICEMODELATT"/>
+         FROM T_DEVICE_MODEL_ATT TDMA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TDMA.TID = #{tid}
+			</if>
+			<if test="fkDeviceTid != null and fkDeviceTid != '' ">	<!-- 设备外键ID -->
+				AND TDMA.FK_DEVICE_TID = #{fkDeviceTid}
+			</if>
+			<if test="fkModelAttTid != null and fkModelAttTid != '' ">	<!-- 型号属性外键ID -->
+				AND TDMA.FK_MODEL_ATT_TID = #{fkModelAttTid}
+			</if>
+			<if test="attValue != null and attValue != '' ">	<!-- 属性值 -->
+				AND TDMA.ATT_VALUE = #{attValue}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TDMA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TDMA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TDMA.CREATE_TIME DESC, TDMA.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.DeviceModelAttEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_DEVICE_MODEL_ATT TDMA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TDMA.TID = #{tid}
+			</if>
+			<if test="fkDeviceTid != null and fkDeviceTid != '' ">	<!-- 设备外键ID -->
+				AND TDMA.FK_DEVICE_TID = #{fkDeviceTid}
+			</if>
+			<if test="fkModelAttTid != null and fkModelAttTid != '' ">	<!-- 型号属性外键ID -->
+				AND TDMA.FK_MODEL_ATT_TID = #{fkModelAttTid}
+			</if>
+			<if test="attValue != null and attValue != '' ">	<!-- 属性值 -->
+				AND TDMA.ATT_VALUE = #{attValue}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TDMA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TDMA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.DeviceModelAttEntity">
+    	INSERT INTO T_DEVICE_MODEL_ATT(
+    		
+			TID,
+			FK_DEVICE_TID,
+			FK_MODEL_ATT_TID,
+			ATT_VALUE,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkDeviceTid},
+			#{fkModelAttTid},
+			#{attValue},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.DeviceModelAttEntity">
+	   UPDATE T_DEVICE_MODEL_ATT
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkDeviceTid != null and fkDeviceTid != '' ">	<!-- 设备外键ID -->
+				,FK_DEVICE_TID = #{fkDeviceTid}
+			</if>
+			<if test="fkModelAttTid != null and fkModelAttTid != '' ">	<!-- 型号属性外键ID -->
+				,FK_MODEL_ATT_TID = #{fkModelAttTid}
+			</if>
+			<if test="attValue != null and attValue != '' ">	<!-- 属性值 -->
+				,ATT_VALUE = #{attValue}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_DEVICE_MODEL_ATT WHERE TID = #{value}
+    </delete>
+    
+    <!-- 根据外键删除 -->
+    <delete id="deleteByFK" parameterType="com.yw.common.beansUtils.entity.DeviceModelAttEntity">
+   		DELETE FROM T_DEVICE_MODEL_ATT
+   		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+   			AND FK_MODEL_ATT_TID = #{fkModelAttTid}
+   		</trim>
+   </delete>
+</mapper>

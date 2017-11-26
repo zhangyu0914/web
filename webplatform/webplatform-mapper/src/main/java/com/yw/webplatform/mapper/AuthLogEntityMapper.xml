@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 认证记录 -->
+<mapper namespace="com.yw.webplatform.mapper.AuthLogEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AuthLogEntity" id="resultMapAuthLog">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="appVersion" column="APP_VERSION"/>	<!-- 应用版本 -->
+		<result property="appInstance" column="APP_INSTANCE"/>	<!-- 应用账号 -->
+		<result property="token" column="TOKEN"/>	<!-- 会话 -->
+		<result property="authMsg" column="AUTH_MSG"/>	<!-- 认证信息 -->
+		<result property="authStatus" column="AUTH_STATUS"/>	<!-- 认证状态 -->
+		<result property="onlineStatus" column="ONLINE_STATUS"/>	<!-- 认证状态 -->
+		<result property="tokenTimeout" column="TOKEN_TIMEOUT"/>	<!-- 会话超时时间 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+		<result property="appName" column="APP_NAME"/>		<!-- 应用名称 -->
+		<result property="orgName" column="ORG_NAME"/>		<!-- 机构名称 -->
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_AUTHLOG">
+		
+		TAL.TID,
+		TAL.APP_ID,
+		TAL.APP_VERSION,
+		TAL.APP_INSTANCE,
+		TAL.TOKEN,
+		TAL.AUTH_MSG,
+		TAL.AUTH_STATUS,
+		TAL.ONLINE_STATUS,
+		TAL.TOKEN_TIMEOUT,
+		TAL.CREATE_TIME,
+		TAL.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AuthLogEntity" resultMap="resultMapAuthLog">  
+         SELECT DISTINCT
+         	<include refid="SELECT_PARAMS_AUTHLOG"/>,
+         	TA.APP_NAME AS APP_NAME,
+			TOTO.ORG_NAME
+         FROM T_AUTH_LOG TAL,T_APP_ACCOUNT TAA,T_APP TA,T_ORGANIZATION TOTO
+         
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	TAL.APP_ID = TAA.APP_ID AND TAL.APP_ID = TAA.APP_ID
+        	AND TAA.APP_ID = TA.APP_ID AND TAA.FK_ORGANIZATION_TID = TOTO.TID
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAL.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TAL.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				AND TAL.APP_INSTANCE = #{appInstance}
+			</if>
+			<if test="token != null and token != '' ">	<!-- 会话 -->
+				AND TAL.TOKEN = #{token}
+			</if>
+			<if test="authMsg != null and authMsg != '' ">	<!-- 认证信息 -->
+				AND TAL.AUTH_MSG = #{authMsg}
+			</if>
+			<if test="authStatus != null ">	<!-- 认证状态 -->
+				AND TAL.AUTH_STATUS = #{authStatus}
+			</if>
+			<if test="onlineStatus != null and onlineStatus != '' ">	<!-- 认证状态 -->
+				AND TAL.ONLINE_STATUS = #{onlineStatus}
+			</if>
+			<if test="tokenTimeout != null and tokenTimeout != '' ">	<!-- 会话超时时间 -->
+				AND TAL.TOKEN_TIMEOUT = #{tokenTimeout}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="orgName != null and orgName != '' ">	<!-- 机构名称 -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+         </trim>
+         ORDER BY TAL.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AuthLogEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM (
+         SELECT DISTINCT
+         	<include refid="SELECT_PARAMS_AUTHLOG"/>,
+         	TA.APP_NAME AS APP_NAME,
+			TOTO.ORG_NAME
+         FROM T_AUTH_LOG TAL,T_APP_ACCOUNT TAA,T_APP TA,T_ORGANIZATION TOTO
+         
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	TAL.APP_ID = TAA.APP_ID AND TAL.APP_ID = TAA.APP_ID
+        	AND TAA.APP_ID = TA.APP_ID AND TAA.FK_ORGANIZATION_TID = TOTO.TID
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAL.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TAL.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				AND TAL.APP_INSTANCE = #{appInstance}
+			</if>
+			<if test="token != null and token != '' ">	<!-- 会话 -->
+				AND TAL.TOKEN = #{token}
+			</if>
+			<if test="authMsg != null and authMsg != '' ">	<!-- 认证信息 -->
+				AND TAL.AUTH_MSG = #{authMsg}
+			</if>
+			<if test="authStatus != null ">	<!-- 认证状态 -->
+				AND TAL.AUTH_STATUS = #{authStatus}
+			</if>
+			<if test="onlineStatus != null and onlineStatus != '' ">	<!-- 认证状态 -->
+				AND TAL.ONLINE_STATUS = #{onlineStatus}
+			</if>
+			<if test="tokenTimeout != null and tokenTimeout != '' ">	<!-- 会话超时时间 -->
+				AND TAL.TOKEN_TIMEOUT = #{tokenTimeout}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="orgName != null and orgName != '' ">	<!-- 机构名称 -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+			<if test="appName != null and appName != '' ">	<!-- 应用名称 -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+         </trim>
+         ) TT
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AuthLogEntity">
+    	INSERT INTO T_AUTH_LOG(
+    		
+			TID,
+			APP_ID,
+			APP_VERSION,
+			APP_INSTANCE,
+			TOKEN,
+			AUTH_MSG,
+			AUTH_STATUS,
+			ONLINE_STATUS,
+			TOKEN_TIMEOUT,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{appId},
+			#{appVersion},
+			#{appInstance},
+			#{token},
+			#{authMsg},
+			#{authStatus},
+			#{onlineStatus},
+			#{tokenTimeout},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AuthLogEntity">
+	   UPDATE T_AUTH_LOG
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				,APP_ID = #{appId}
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				,APP_INSTANCE = #{appInstance}
+			</if>
+			<if test="token != null and token != '' ">	<!-- 会话 -->
+				,TOKEN = #{token}
+			</if>
+			<if test="authMsg != null and authMsg != '' ">	<!-- 认证信息 -->
+				,AUTH_MSG = #{authMsg}
+			</if>
+			<if test="authStatus != null ">	<!-- 认证状态 -->
+				,AUTH_STATUS = #{authStatus}
+			</if>
+			<if test="onlineStatus != null and onlineStatus != '' ">	<!-- 认证状态 -->
+				,ONLINE_STATUS = #{onlineStatus}
+			</if>
+			<if test="tokenTimeout != null and tokenTimeout != '' ">	<!-- 会话超时时间 -->
+				,TOKEN_TIMEOUT = #{tokenTimeout}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_AUTH_LOG WHERE TID = #{value}
+    </delete>
+    
+    <!-- 把超时的数据更新为离线状态 -->
+     <update id="updateOnlineForTimeOUt" parameterType="com.yw.common.beansUtils.entity.AuthLogEntity">
+         UPDATE T_AUTH_LOG SET ONLINE_STATUS = 1
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         	AND AUTH_STATUS = 0
+         	AND ONLINE_STATUS = 0
+         	AND TOKEN_TIMEOUT &lt; SYSDATE()
+     	 </trim>
+     </update>
+     
+     <!-- 查询有效TOKEN -->
+     <select id="findVaildToken" parameterType="com.yw.common.beansUtils.entity.AuthLogEntity" resultMap="resultMapAuthLog">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_AUTHLOG"/>
+         FROM T_AUTH_LOG TAL
+          <trim prefix="WHERE" prefixOverrides="AND |OR ">
+          	<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND TAL.APP_ID = #{appId}
+			</if>
+			<if test="appInstance != null and appInstance != '' ">	<!-- 应用账号 -->
+				AND TAL.APP_INSTANCE = #{appInstance}
+			</if>
+          	AND TAL.TOKEN = #{token} 
+          	AND TAL.TOKEN_TIMEOUT &gt; SYSDATE() 
+          	AND TAL.ONLINE_STATUS = 0
+          </trim>
+     </select>
+</mapper>

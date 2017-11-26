@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 用户表 -->
+<mapper namespace="com.yw.webplatform.mapper.UserInfoEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UserInfoEntity" id="resultMapUserInfo">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="userPwd" column="USER_PWD"/>	<!-- 密码 -->
+		<result property="userSalt" column="USER_SALT"/>	<!-- 密码盐 -->
+		<result property="userSecretKey" column="USER_SECRET_KEY"/>	<!-- 安全KEY -->
+		<result property="userAccount" column="USER_ACCOUNT"/>	<!-- 账号 -->
+		<result property="displayName" column="DISPLAY_NAME"/>	<!-- 姓名 -->
+		<result property="phone" column="PHONE"/>	<!-- 电话号码 -->
+		<result property="email" column="EMAIL"/>	<!-- 邮箱地址 -->
+		<result property="birthday" column="BIRTHDAY"/>	<!-- 生日 -->
+		<result property="age" column="AGE"/>	<!-- 年龄（目前不用） -->
+		<result property="gender" column="GENDER"/>	<!-- 性别 -->
+		<result property="city" column="CITY"/>	<!-- 城市 -->
+		<result property="address" column="ADDRESS"/>	<!-- 地址 -->
+		<result property="avatar" column="AVATAR"/>	<!-- 头像地址 -->
+		<result property="loginStatus" column="LOGIN_STATUS"/>	<!-- 登录状态 -->
+		<result property="delFlag" column="DEL_FLAG"/>	<!-- 删除 -->
+		<result property="userState" column="USER_STATE"/>	<!-- 用户状态 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<!-- 多对多:得到用户的角色 -->
+		<collection property="rolesList" column="TID"  select="findRolesByUserId" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.UsersRolesEntity"/>
+
+	</resultMap>
+	
+	
+	<!-- 映射为实体:Roles -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersRolesEntity" id="resultMapRoles">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="tUsersTid" column="T_USERS_TID"/>	<!-- 用户外键 -->
+		<result property="tRolesTid" column="T_ROLES_TID"/>	<!-- 角色外键 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_USERINFO">
+		
+		TUI.TID,
+		TUI.USER_PWD,
+		TUI.USER_SALT,
+		TUI.USER_SECRET_KEY,
+		TUI.USER_ACCOUNT,
+		TUI.DISPLAY_NAME,
+		TUI.PHONE,
+		TUI.EMAIL,
+		TUI.BIRTHDAY,
+		TUI.AGE,
+		TUI.GENDER,
+		TUI.CITY,
+		TUI.ADDRESS,
+		TUI.AVATAR,
+		TUI.LOGIN_STATUS,
+		TUI.DEL_FLAG,
+		TUI.USER_STATE,
+		TUI.CREATE_TIME,
+		TUI.UPDATE_TIME
+
+	</sql>
+	
+	<sql id="SELECT_PARAMS_ROLES">
+		MUR.TID,
+		MUR.ROLE_NAME,
+		MUR.ROLE_CODE,
+		MUR.ROLE_DESCRIBE,
+		MUR.STATE,
+		MUR.CREATE_TIME,
+		MUR.UPDATE_TIME
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.UserInfoEntity" resultMap="resultMapUserInfo">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_USERINFO"/>
+         FROM T_USER_INFO TUI
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TUI.TID = #{tid}
+			</if>
+			<if test="userPwd != null and userPwd != '' ">	<!-- 密码 -->
+				AND TUI.USER_PWD = #{userPwd}
+			</if>
+			<if test="userSalt != null and userSalt != '' ">	<!-- 密码盐 -->
+				AND TUI.USER_SALT = #{userSalt}
+			</if>
+			<if test="userSecretKey != null and userSecretKey != '' ">	<!-- 安全KEY -->
+				AND TUI.USER_SECRET_KEY = #{userSecretKey}
+			</if>
+			<if test="userAccount != null and userAccount != '' ">	<!-- 账号 -->
+				AND UPPER(TUI.USER_ACCOUNT) LIKE UPPER('%${userAccount}%') 
+			</if>
+			<if test="displayName != null and displayName != '' ">	<!-- 姓名 -->
+				AND UPPER(TUI.DISPLAY_NAME) LIKE UPPER('%${displayName}%') 
+			</if>
+			<if test="phone != null and phone != '' ">	<!-- 电话号码 -->
+				AND TUI.PHONE = #{phone}
+			</if>
+			<if test="email != null and email != '' ">	<!-- 邮箱地址 -->
+				AND TUI.EMAIL = #{email}
+			</if>
+			<if test="birthday != null and birthday != '' ">	<!-- 生日 -->
+				AND TUI.BIRTHDAY = #{birthday}
+			</if>
+			<if test="age != null ">	<!-- 年龄（目前不用） -->
+				AND TUI.AGE = #{age}
+			</if>
+			<if test="gender != null ">	<!-- 性别 -->
+				AND TUI.GENDER = #{gender}
+			</if>
+			<if test="city != null and city != '' ">	<!-- 城市 -->
+				AND TUI.CITY = #{city}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				AND TUI.ADDRESS = #{address}
+			</if>
+			<if test="avatar != null and avatar != '' ">	<!-- 头像地址 -->
+				AND TUI.AVATAR = #{avatar}
+			</if>
+			<if test="loginStatus != null ">	<!-- 登录状态 -->
+				AND TUI.LOGIN_STATUS = #{loginStatus}
+			</if>
+			<if test="delFlag != null ">	<!-- 删除 -->
+				AND TUI.DEL_FLAG = #{delFlag}
+			</if>
+			<if test="userState != null ">	<!-- 用户状态 -->
+				AND TUI.USER_STATE = #{userState}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TUI.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TUI.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TUI.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.UserInfoEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_USER_INFO TUI
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TUI.TID = #{tid}
+			</if>
+			<if test="userPwd != null and userPwd != '' ">	<!-- 密码 -->
+				AND TUI.USER_PWD = #{userPwd}
+			</if>
+			<if test="userSalt != null and userSalt != '' ">	<!-- 密码盐 -->
+				AND TUI.USER_SALT = #{userSalt}
+			</if>
+			<if test="userSecretKey != null and userSecretKey != '' ">	<!-- 安全KEY -->
+				AND TUI.USER_SECRET_KEY = #{userSecretKey}
+			</if>
+			<if test="userAccount != null and userAccount != '' ">	<!-- 账号 -->
+				AND UPPER(TUI.USER_ACCOUNT) LIKE UPPER('%${userAccount}%') 
+			</if>
+			<if test="displayName != null and displayName != '' ">	<!-- 姓名 -->
+				AND UPPER(TUI.DISPLAY_NAME) LIKE UPPER('%${displayName}%') 
+			</if>
+			<if test="phone != null and phone != '' ">	<!-- 电话号码 -->
+				AND TUI.PHONE = #{phone}
+			</if>
+			<if test="email != null and email != '' ">	<!-- 邮箱地址 -->
+				AND TUI.EMAIL = #{email}
+			</if>
+			<if test="birthday != null and birthday != '' ">	<!-- 生日 -->
+				AND TUI.BIRTHDAY = #{birthday}
+			</if>
+			<if test="age != null ">	<!-- 年龄（目前不用） -->
+				AND TUI.AGE = #{age}
+			</if>
+			<if test="gender != null ">	<!-- 性别 -->
+				AND TUI.GENDER = #{gender}
+			</if>
+			<if test="city != null and city != '' ">	<!-- 城市 -->
+				AND TUI.CITY = #{city}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				AND TUI.ADDRESS = #{address}
+			</if>
+			<if test="avatar != null and avatar != '' ">	<!-- 头像地址 -->
+				AND TUI.AVATAR = #{avatar}
+			</if>
+			<if test="loginStatus != null ">	<!-- 登录状态 -->
+				AND TUI.LOGIN_STATUS = #{loginStatus}
+			</if>
+			<if test="delFlag != null ">	<!-- 删除 -->
+				AND TUI.DEL_FLAG = #{delFlag}
+			</if>
+			<if test="userState != null ">	<!-- 用户状态 -->
+				AND TUI.USER_STATE = #{userState}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TUI.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TUI.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.UserInfoEntity">
+    	INSERT INTO T_USER_INFO(
+    		
+			TID,
+			USER_PWD,
+			USER_SALT,
+			USER_SECRET_KEY,
+			USER_ACCOUNT,
+			DISPLAY_NAME,
+			PHONE,
+			EMAIL,
+			BIRTHDAY,
+			AGE,
+			GENDER,
+			CITY,
+			ADDRESS,
+			AVATAR,
+			LOGIN_STATUS,
+			DEL_FLAG,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{userPwd},
+			#{userSalt},
+			#{userSecretKey},
+			#{userAccount},
+			#{displayName},
+			#{phone},
+			#{email},
+			#{birthday},
+			#{age},
+			#{gender},
+			#{city},
+			#{address},
+			#{avatar},
+			IFNULL(#{loginStatus},0),
+			IFNULL(#{delFlag},0),
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.UserInfoEntity">
+	   UPDATE T_USER_INFO
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="userPwd != null and userPwd != '' ">	<!-- 密码 -->
+				,USER_PWD = #{userPwd}
+			</if>
+			<if test="userSalt != null and userSalt != '' ">	<!-- 密码盐 -->
+				,USER_SALT = #{userSalt}
+			</if>
+			<if test="userSecretKey != null and userSecretKey != '' ">	<!-- 安全KEY -->
+				,USER_SECRET_KEY = #{userSecretKey}
+			</if>
+			<if test="userAccount != null and userAccount != '' ">	<!-- 账号 -->
+				,USER_ACCOUNT = #{userAccount}
+			</if>
+			<if test="displayName != null and displayName != '' ">	<!-- 姓名 -->
+				,DISPLAY_NAME = #{displayName}
+			</if>
+			<if test="phone != null and phone != '' ">	<!-- 电话号码 -->
+				,PHONE = #{phone}
+			</if>
+			<if test="email != null and email != '' ">	<!-- 邮箱地址 -->
+				,EMAIL = #{email}
+			</if>
+			<if test="birthday != null and birthday != '' ">	<!-- 生日 -->
+				,BIRTHDAY = #{birthday}
+			</if>
+			<if test="age != null ">	<!-- 年龄（目前不用） -->
+				,AGE = #{age}
+			</if>
+			<if test="gender != null ">	<!-- 性别 -->
+				,GENDER = #{gender}
+			</if>
+			<if test="city != null and city != '' ">	<!-- 城市 -->
+				,CITY = #{city}
+			</if>
+			<if test="address != null and address != '' ">	<!-- 地址 -->
+				,ADDRESS = #{address}
+			</if>
+			<if test="avatar != null and avatar != '' ">	<!-- 头像地址 -->
+				,AVATAR = #{avatar}
+			</if>
+			<if test="loginStatus != null ">	<!-- 登录状态 -->
+				,LOGIN_STATUS = #{loginStatus}
+			</if>
+			<if test="delFlag != null ">	<!-- 删除 -->
+				,DEL_FLAG = #{delFlag}
+			</if>
+			<if test="userState != null ">	<!-- 用户状态 -->
+				,USER_STATE = #{userState}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_USER_INFO WHERE TID = #{value}
+    </delete>
+    
+    <!-- 得到用户的角色 -->
+   <select id="findRolesByUserId" parameterType="java.lang.String" resultMap="resultMapRoles">
+   	 SELECT 
+   	  <include refid="SELECT_PARAMS_ROLES"/>
+   	  FROM T_USERS_ROLES MUR
+   	 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   	MUR.TID IN 
+		(
+			SELECT T_ROLES_TID FROM T_USERS_ROLES_USERS TRU WHERE TRU.T_USERS_TID = #{value}
+		)
+   	 </trim>
+   </select>
+</mapper>

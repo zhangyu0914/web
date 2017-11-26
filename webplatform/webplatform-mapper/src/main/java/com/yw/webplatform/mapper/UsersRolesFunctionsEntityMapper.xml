@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 用户信息 -->
+<mapper namespace="com.yw.webplatform.mapper.UsersRolesFunctionsEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.UsersRolesFunctionsEntity" id="resultMapRolesFunctions">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="tFunctionsTid" column="T_FUNCTIONS_TID"/>	<!-- 权限外键 -->
+		<result property="tRolesTid" column="T_ROLES_TID"/>	<!-- 角色外键 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+	</resultMap>
+	
+	
+	
+	<!-- 查询时，把常用的字段抽出来进行公用，尽量减少开发员的工作量 -->
+	<sql id="SELECT_PARAMS_USERS_ROLES_FUNCTIONS">
+		MURF.TID,
+		MURF.T_FUNCTIONS_TID,
+		MURF.T_ROLES_TID,
+		MURF.CREATE_TIME,
+		MURF.UPDATE_TIME
+	</sql>
+	  <!-- 根据条件，查询多条数据 -->
+     <select id="findAll" parameterType="com.yw.common.beansUtils.entity.UsersRolesFunctionsEntity" resultMap="resultMapRolesFunctions">  
+         SELECT
+         	<include refid="SELECT_PARAMS_USERS_ROLES_FUNCTIONS"/>
+         FROM T_USERS_ROLES_FUNCTIONS MURF  
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	          <if test="tid != null and tid != '' ">
+	         	 TID = #{tid}
+	          </if>
+        </trim>
+        ORDER BY CREATE_TIME DESC
+    </select>
+   
+   <!-- 添加 -->
+   <insert id="insert" parameterType="com.yw.common.beansUtils.entity.UsersRolesFunctionsEntity">
+   		INSERT INTO T_USERS_ROLES_FUNCTIONS(
+   		
+   			TID,
+			T_FUNCTIONS_TID,
+			T_ROLES_TID,
+			CREATE_TIME
+   			
+   		)VALUES(
+			#{tid},
+			#{tFunctionsTid},
+			#{tRolesTid},
+			SYSDATE()
+		)
+   </insert>  
+   
+   <!-- 删除角色关联的权限 -->
+   <delete id="delete" parameterType="com.yw.common.beansUtils.entity.UsersRolesFunctionsEntity">
+   		DELETE FROM T_USERS_ROLES_FUNCTIONS
+   		<where>
+   			T_ROLES_TID = #{value}
+   		</where>
+   </delete>
+   
+    <!-- 删除角色关联的权限 -->
+   <delete id="deleteFunctions" parameterType="com.yw.common.beansUtils.entity.UsersRolesFunctionsEntity">
+   		DELETE FROM T_USERS_ROLES_FUNCTIONS
+   		<where>
+   			T_FUNCTIONS_TID = #{value}
+   		</where>
+   </delete>
+</mapper>

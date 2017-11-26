@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 许可证表 -->
+<mapper namespace="com.yw.webplatform.mapper.LicenseEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.LicenseEntity" id="resultMapLicense">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="licNo" column="LIC_NO"/>	<!-- 许可证编号 -->
+		<result property="pid" column="PID"/>	<!-- 平台ID -->
+		<result property="licName" column="LIC_NAME"/>	<!-- 许可证名称 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="sn" column="SN"/>	<!--  -->
+		<result property="residueDayCount" column="RESIDUE_DAY_COUNT"/>	<!--  -->
+		<result property="modelName" column="MODEL_NAME"/>	<!--  -->
+		<result property="modelNo" column="MODEL_NO"/>	<!--  -->
+		<result property="modelCode" column="MODEL_CODE"/>	<!--  -->
+		<result property="beginTime" column="BEGIN_TIME"/>	<!-- 开始时间 -->
+		<result property="endTime" column="END_TIME"/>	<!-- 结束时间 -->
+		<result property="appName" column="APP_NAME"/>	<!--  -->
+		<result property="appId" column="APP_ID"/>	<!--  -->
+		<result property="deviceType" column="DEVICE_TYPE"/>	<!--  -->
+		<result property="eqName" column="EQ_NAME"/>	<!--  -->
+		<result property="maxInstance" column="MAX_INSTANCE"/>	<!-- 最大实例数 -->
+		<result property="appLicenseTid" column="APPLICENSETID"/>	<!-- 型号许可证Tid -->
+		<result property="appReportName" column="APP_REPORT_NAME"/>	<!-- 实例名称 -->
+		
+		<result property="tradeName" column="TRADE_NAME"/>	<!--  -->
+		<result property="tradeCode" column="TRADE_CODE"/>	<!--  -->
+		<result property="modelVersion" column="MODEL_VERSION"/>	<!-- 型号版本号 -->
+		<result property="appVersion" column="APP_VERSION"/>  <!-- 应用版本号 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_LICENSE">
+		
+		TL.TID,
+		TL.PID,
+		TL.LIC_NO,
+		TL.LIC_NAME,
+		TL.REMARK,
+		TL.CREATE_TIME,
+		TL.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.LicenseEntity" resultMap="resultMapLicense">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_LICENSE"/>
+         FROM T_LICENSE TL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TL.TID = #{tid}
+			</if>
+			<if test="licNo != null and licNo != '' ">	<!-- 许可证编号 -->
+				AND TL.LIC_NO = #{licNo}
+			</if>
+			<if test="pid != null and pid != '' ">	<!-- 平台ID -->
+				AND TL.PID = #{pid}
+			</if>
+			<if test="licName != null and licName != '' ">	<!-- 许可证名称 -->
+				AND TL.LIC_NAME = #{licName}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TL.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TL.CREATE_TIME &lt;= #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TL.CREATE_TIME DESC, TL.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.LicenseEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_LICENSE TL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TL.TID = #{tid}
+			</if>
+			<if test="licNo != null and licNo != '' ">	<!-- 许可证编号 -->
+				AND TL.LIC_NO = #{licNo}
+			</if>
+			<if test="pid != null and pid != '' ">	<!-- 平台ID -->
+				AND TL.PID = #{pid}
+			</if>
+			<if test="licName != null and licName != '' ">	<!-- 许可证名称 -->
+				AND TL.LIC_NAME = #{licName}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TL.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TL.CREATE_TIME &lt;= #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.LicenseEntity">
+    	INSERT INTO T_LICENSE(
+    		
+			TID,
+			LIC_NAME,
+			LIC_NO,
+			PID,
+			REMARK,
+			BEGIN_TIME,
+			END_TIME,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{licName},
+			#{licNo},
+			#{pid},
+			#{remark},
+			#{beginTime},
+			#{endTime},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.LicenseEntity">
+	   UPDATE T_LICENSE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="licNo != null and licNo != '' ">	<!-- 许可证编号 -->
+				,LIC_NO = #{licNo}
+			</if>
+			<if test="pid != null and pid != '' ">	<!-- 平台ID -->
+				,PID = #{pid}
+			</if>
+			<if test="licName != null and licName != '' ">	<!-- 许可证名称 -->
+				,LIC_NAME = #{licName}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_LICENSE WHERE TID = #{value}
+    </delete>
+    
+    <!-- 应用许可证查询 -->
+    <select id="findAppLicense" parameterType="com.yw.common.beansUtils.entity.LicenseEntity" resultMap="resultMapLicense">  
+         SELECT
+         	
+         	TAL.TID,
+         	DATEDIFF(TAL.END_TIME,SYSDATE()) AS RESIDUE_DAY_COUNT,
+         	TA.APP_NAME,
+         	TA.APP_VERSION,
+         	TAL.APP_REPORT_NAME AS APP_REPORT_NAME,
+         	TAL.APP_ID,
+         	DATE_FORMAT(TAL.BEGIN_TIME,'%Y-%m-%d %H:%m:%s') AS BEGIN_TIME,
+         	DATE_FORMAT(TAL.END_TIME,'%Y-%m-%d %H:%m:%s') AS END_TIME,
+         	TAL.MAX_INSTANCE AS MAX_INSTANCE,
+         	TAL.TID AS APPLICENSETID,
+         	TAL.CREATE_TIME
+         	
+         FROM T_APP_LICENSE TAL
+         LEFT JOIN T_APP TA ON (TAL.APP_ID = TA.APP_ID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="appReportName != null and appReportName != '' ">	<!-- 应用名称 -->
+				AND UPPER(TAL.APP_REPORT_NAME) LIKE UPPER('%${appReportName}%')
+			</if>
+			<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAL.BEGIN_TIME  &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAL.END_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TAL.APP_ID) LIKE UPPER('%${appId}%')
+			</if>
+         </trim>
+         ORDER BY TAL.CREATE_TIME DESC, TAL.APP_REPORT_NAME ASC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCountAppLicense" parameterType="com.yw.common.beansUtils.entity.LicenseEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP_LICENSE TAL
+         LEFT JOIN T_APP TA ON (TAL.APP_ID = TA.APP_ID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="appReportName != null and appReportName != '' ">	<!-- 应用名称 -->
+				AND UPPER(TAL.APP_REPORT_NAME) LIKE UPPER('%${appReportName}%')
+			</if>
+			<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAL.BEGIN_TIME  &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAL.END_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TAL.APP_ID) LIKE UPPER('%${appId}%')
+			</if>
+         </trim>
+    </select>
+    
+    <!-- 设备许可证查询 -->
+    <select id="findDeviceLicense" parameterType="com.yw.common.beansUtils.entity.LicenseEntity" resultMap="resultMapLicense">
+		SELECT
+		
+			TDL.SN,
+			TR.TRADE_NAME, 
+			TR.TRADE_CODE,
+			TD.EQ_NAME,
+			TD.MODEL_NO,
+			TM.MODEL_CODE,
+			TD.MODEL_VERSION,
+			TDL.BEGIN_TIME, 
+			TDL.END_TIME,
+			DATEDIFF(TDL.END_TIME,SYSDATE()) AS RESIDUE_DAY_COUNT
+			
+		FROM T_DEVICE_LICENSE TDL
+		LEFT JOIN T_DEVICE TD ON (TDL.SN = TD.SN)
+		LEFT JOIN T_MODEL TM ON (TD.MODEL_NO = TM.MODEL_NO)
+		LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+         
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND UPPER(TDL.SN) LIKE UPPER('%${sn}%')
+			</if>
+			<if test="startSearchTime != null and startSearchTime != '' ">
+			 	and TDL.BEGIN_TIME  &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	and TDL.END_TIME &lt;= #{endSearchTime}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				AND UPPER(TM.MODEL_NO) LIKE UPPER('%${modelNo}%')
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 型号 -->
+				AND UPPER(TM.MODEL_CODE) LIKE UPPER('%${modelCode}%')
+			</if>
+			<if test="modelName != null and modelName != '' ">	<!-- 型号名称 -->
+				AND UPPER(TM.MODEL_NAME) LIKE UPPER('%${modelName}%')
+			</if>
+         </trim>
+          ORDER BY DATEDIFF(TDL.END_TIME,SYSDATE()) ASC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCountDeviceLicense" parameterType="com.yw.common.beansUtils.entity.LicenseEntity" resultType="int">  
+        SELECT 
+        
+        	COUNT(1) 
+        
+        FROM T_DEVICE_LICENSE TDL
+		LEFT JOIN T_DEVICE TD ON (TDL.SN = TD.SN)
+		LEFT JOIN T_MODEL TM ON (TD.MODEL_NO = TM.MODEL_NO)
+		LEFT JOIN T_TRADE TR ON (TM.TRADE_CODE = TR.TRADE_CODE)
+        
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND UPPER(TDL.SN) LIKE UPPER('%${sn}%')
+			</if>
+			<if test="startSearchTime != null and startSearchTime != '' ">
+			 	and TDL.BEGIN_TIME  &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	and TDL.END_TIME &lt;= #{endSearchTime}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				AND UPPER(TM.MODEL_NO) LIKE UPPER('%${modelNo}%')
+			</if>
+			<if test="modelCode != null and modelCode != '' ">	<!-- 型号 -->
+				AND UPPER(TM.MODEL_CODE) LIKE UPPER('%${modelCode}%')
+			</if>
+			<if test="modelName != null and modelName != '' ">	<!-- 型号名称 -->
+				AND UPPER(TM.MODEL_NAME) LIKE UPPER('%${modelName}%')
+			</if>
+         </trim>
+    </select>
+    
+    <!-- 查询编码 -->
+    <select id="getMaxCode" parameterType="com.yw.common.beansUtils.entity.UsersFunctionsEntity" resultType="int">  
+         SELECT 
+		 	MAX(LIC_NO) + 1 AS MAX
+		 FROM T_LICENSE ORDER BY LIC_NO DESC LIMIT 0,1
+    </select>
+</mapper>

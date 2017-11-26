@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 推送消息 -->
+<mapper namespace="com.yw.webplatform.mapper.PushMsgEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.PushMsgEntity" id="resultMapPushMsg">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="msg" column="MSG"/>	<!-- 消息 -->
+		<result property="msgStatus" column="MSG_STATUS"/>	<!-- 消息状态 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="appName" column="APP_NAME"/>	
+		<result property="orgName" column="ORG_NAME"/>	
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_PUSHMSG">
+		
+		TPM.TID,
+		TPM.APP_ID,
+		TPM.MSG,
+		TPM.MSG_STATUS,
+		TPM.REMARK,
+		TPM.CREATE_TIME,
+		TPM.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.PushMsgEntity" resultMap="resultMapPushMsg">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_PUSHMSG"/>,
+         	TA.APP_NAME AS APP_NAME,
+         	TOTO.ORG_NAME AS ORG_NAME
+         FROM T_PUSH_MSG TPM
+         LEFT JOIN T_APP TA ON (TPM.APP_ID = TA.APP_ID)
+		 LEFT JOIN T_APP_ACCOUNT TAC on (TA.APP_ID = TAC.APP_ID)
+         LEFT JOIN T_ORGANIZATION TOTO ON (TAC.FK_ORGANIZATION_TID = TOTO.TID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TPM.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND UPPER(TPM.APP_ID) LIKE UPPER('%${appId}%')
+			</if>
+			<if test="msg != null and msg != '' ">	<!-- 消息 -->
+				AND TPM.MSG = #{msg}
+			</if>
+			<if test="msgStatus != null ">	<!-- 消息状态 -->
+				AND TPM.MSG_STATUS = #{msgStatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TPM.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TPM.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TPM.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="appName != null and appName != '' ">	<!--  -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+			<if test="orgName != null and orgName != '' ">	<!--  -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+         </trim>
+         ORDER BY TPM.CREATE_TIME DESC, TPM.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.PushMsgEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_PUSH_MSG TPM
+         LEFT JOIN T_APP TA ON (TPM.APP_ID = TA.APP_ID)
+		 LEFT JOIN T_APP_ACCOUNT TAC on (TA.APP_ID = TAC.APP_ID)
+         LEFT JOIN T_ORGANIZATION TOTO ON (TAC.FK_ORGANIZATION_TID = TOTO.TID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TPM.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND TPM.APP_ID = #{appId}
+			</if>
+			<if test="msg != null and msg != '' ">	<!-- 消息 -->
+				AND TPM.MSG = #{msg}
+			</if>
+			<if test="msgStatus != null ">	<!-- 消息状态 -->
+				AND TPM.MSG_STATUS = #{msgStatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TPM.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TPM.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TPM.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="appName != null and appName != '' ">	<!--  -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+			<if test="orgName != null and orgName != '' ">	<!--  -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.PushMsgEntity">
+    	INSERT INTO T_PUSH_MSG(
+    		
+			TID,
+			APP_ID,
+			MSG,
+			MSG_STATUS,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{appId},
+			#{msg},
+			IFNULL(#{msgStatus},0),
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.PushMsgEntity">
+	   UPDATE T_PUSH_MSG
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				,APP_ID = #{appId}
+			</if>
+			<if test="msg != null and msg != '' ">	<!-- 消息 -->
+				,MSG = #{msg}
+			</if>
+			<if test="msgStatus != null ">	<!-- 消息状态 -->
+				,MSG_STATUS = #{msgStatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_PUSH_MSG WHERE TID = #{value}
+    </delete>
+</mapper>

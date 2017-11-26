@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 设备属性 -->
+<mapper namespace="com.yw.webplatform.mapper.DeviceAttributeEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.DeviceAttributeEntity" id="resultMapDeviceAttribute">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="sn" column="SN"/>	<!-- SN -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 型号 -->
+		<result property="modelVersion" column="MODEL_VERSION"/>	<!-- 型号版本 -->
+		<result property="ep" column="EP"/>	<!-- 流程 -->
+		<result property="propId" column="PROP_ID"/>	<!-- 功能ID -->
+		<result property="unit" column="UNIT"/>	<!-- 单位 -->
+		<result property="infoValue" column="INFO_VALUE"/>	<!-- 值 -->
+		<result property="jsonData" column="JSON_DATA"/>	<!-- JSON数据 -->
+		<result property="batchNumber" column="BATCH_NUMBER"/>	<!-- 批次 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_DEVICEATTRIBUTE">
+		
+		TDA.TID,
+		TDA.SN,
+		TDA.MODEL_NO,
+		TDA.MODEL_VERSION,
+		TDA.EP,
+		TDA.PROP_ID,
+		TDA.UNIT,
+		TDA.INFO_VALUE,
+		TDA.JSON_DATA,
+		TDA.BATCH_NUMBER,
+		TDA.REMARK,
+		TDA.CREATE_TIME,
+		TDA.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.DeviceAttributeEntity" resultMap="resultMapDeviceAttribute">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_DEVICEATTRIBUTE"/>
+         FROM T_DEVICE_ATTRIBUTE TDA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TDA.TID = #{tid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND TDA.SN = #{sn}
+			</if>
+			<if test="ep != null and ep != '' ">	<!-- 流程 -->
+				AND TDA.EP = #{ep}
+			</if>
+			<if test="propId != null and propId != '' ">	<!-- 功能ID -->
+				AND TDA.PROP_ID = #{propId}
+			</if>
+			<if test="unit != null and unit != '' ">	<!-- 单位 -->
+				AND TDA.UNIT = #{unit}
+			</if>
+			<if test="infoValue != null and infoValue != '' ">	<!-- 值 -->
+				AND TDA.INFO_VALUE = #{infoValue}
+			</if>
+			<if test="jsonData != null and jsonData != '' ">	<!-- JSON数据 -->
+				AND TDA.JSON_DATA = #{jsonData}
+			</if>
+			<if test="batchNumber != null and batchNumber != '' ">	<!-- 批次 -->
+				AND TDA.BATCH_NUMBER = #{batchNumber}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TDA.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TDA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TDA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TDA.CREATE_TIME DESC, TDA.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.DeviceAttributeEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_DEVICE_ATTRIBUTE TDA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TDA.TID = #{tid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND TDA.SN = #{sn}
+			</if>
+			<if test="ep != null and ep != '' ">	<!-- 流程 -->
+				AND TDA.EP = #{ep}
+			</if>
+			<if test="propId != null and propId != '' ">	<!-- 功能ID -->
+				AND TDA.PROP_ID = #{propId}
+			</if>
+			<if test="unit != null and unit != '' ">	<!-- 单位 -->
+				AND TDA.UNIT = #{unit}
+			</if>
+			<if test="infoValue != null and infoValue != '' ">	<!-- 值 -->
+				AND TDA.INFO_VALUE = #{infoValue}
+			</if>
+			<if test="jsonData != null and jsonData != '' ">	<!-- JSON数据 -->
+				AND TDA.JSON_DATA = #{jsonData}
+			</if>
+			<if test="batchNumber != null and batchNumber != '' ">	<!-- 批次 -->
+				AND TDA.BATCH_NUMBER = #{batchNumber}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TDA.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TDA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TDA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.DeviceAttributeEntity">
+    	INSERT INTO T_DEVICE_ATTRIBUTE(
+    		
+			TID,
+			SN,
+			MODEL_NO,
+			MODEL_VERSION,
+			EP,
+			PROP_ID,
+			UNIT,
+			INFO_VALUE,
+			JSON_DATA,
+			BATCH_NUMBER,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{sn},
+			#{modelNo},
+			#{modelVersion},
+			#{ep},
+			#{propId},
+			#{unit},
+			#{infoValue},
+			#{jsonData},
+			#{batchNumber},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.DeviceAttributeEntity">
+	   UPDATE T_DEVICE_ATTRIBUTE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				,SN = #{sn}
+			</if>
+			<if test="ep != null and ep != '' ">	<!-- 流程 -->
+				,EP = #{ep}
+			</if>
+			<if test="propId != null and propId != '' ">	<!-- 功能ID -->
+				,PROP_ID = #{propId}
+			</if>
+			<if test="unit != null and unit != '' ">	<!-- 单位 -->
+				,UNIT = #{unit}
+			</if>
+			<if test="infoValue != null and infoValue != '' ">	<!-- 值 -->
+				,INFO_VALUE = #{infoValue}
+			</if>
+			<if test="jsonData != null and jsonData != '' ">	<!-- JSON数据 -->
+				,JSON_DATA = #{jsonData}
+			</if>
+			<if test="batchNumber != null and batchNumber != '' ">	<!-- 批次 -->
+				,BATCH_NUMBER = #{batchNumber}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    <update id="updateData" parameterType="com.yw.common.beansUtils.entity.DeviceAttributeEntity">
+	   UPDATE T_DEVICE_ATTRIBUTE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="ep != null and ep != '' ">	<!-- 流程 -->
+				,EP = #{ep}
+			</if>
+			<if test="unit != null and unit != '' ">	<!-- 单位 -->
+				,UNIT = #{unit}
+			</if>
+			<if test="infoValue != null and infoValue != '' ">	<!-- 值 -->
+				,INFO_VALUE = #{infoValue}
+			</if>
+			<if test="jsonData != null and jsonData != '' ">	<!-- JSON数据 -->
+				,JSON_DATA = #{jsonData}
+			</if>
+			<if test="batchNumber != null and batchNumber != '' ">	<!-- 批次 -->
+				,BATCH_NUMBER = #{batchNumber}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		SN = #{sn} AND PROP_ID = #{propId} AND MODEL_NO = #{modelNo} 
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_DEVICE_ATTRIBUTE WHERE TID = #{value}
+    </delete>
+</mapper>

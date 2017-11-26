@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 应用与设备 -->
+<mapper namespace="com.yw.webplatform.mapper.AppDeviceEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppDeviceEntity" id="resultMapAppDevice">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="appVersion" column="APP_VERSION"/>	<!-- 应用版本 -->
+		<result property="fkAppAccountTid" column="FK_APP_ACCOUNT_TID"/>	<!-- 平台应用实例外键ID -->
+		<result property="sn" column="SN"/>	<!-- 设备SN -->
+		<result property="eqName" column="EQ_NAME"/>	<!-- 设备名称 -->
+		<result property="eqStatus" column="EQ_STATUS"/>	<!-- 设备状态 -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 型号 -->
+		<result property="bindingTime" column="BINDING_TIME"/>	<!-- 绑定时间 -->
+		<result property="remark" column="REMARK"/>	<!-- 设备 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APPDEVICE">
+		
+		TAD.TID,
+		TAD.APP_ID,
+		TAD.APP_VERSION,
+		TAD.FK_APP_ACCOUNT_TID,
+		TAD.SN,
+		TAD.EQ_NAME,
+		TAD.EQ_STATUS,
+		TAD.MODEL_NO,
+		TAD.BINDING_TIME,
+		TAD.REMARK,
+		TAD.CREATE_TIME,
+		TAD.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AppDeviceEntity" resultMap="resultMapAppDevice">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPDEVICE"/>
+         FROM T_APP_DEVICE TAD
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAD.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND TAD.APP_ID = #{appId}
+			</if>
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 平台应用实例外键ID -->
+				AND TAD.FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- 设备SN -->
+				AND TAD.SN = #{sn}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				AND TAD.EQ_NAME = #{eqName}
+			</if>
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				AND TAD.EQ_STATUS = #{eqStatus}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				AND TAD.MODEL_NO = #{modelNo}
+			</if>
+			<if test="bindingTime != null and bindingTime != '' ">	<!-- 绑定时间 -->
+				AND TAD.BINDING_TIME = #{bindingTime}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 设备 -->
+				AND TAD.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAD.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAD.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TAD.CREATE_TIME DESC, TAD.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AppDeviceEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP_DEVICE TAD
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAD.TID = #{tid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				AND TAD.APP_ID = #{appId}
+			</if>
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 平台应用实例外键ID -->
+				AND TAD.FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- 设备SN -->
+				AND TAD.SN = #{sn}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				AND TAD.EQ_NAME = #{eqName}
+			</if>
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				AND TAD.EQ_STATUS = #{eqStatus}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				AND TAD.MODEL_NO = #{modelNo}
+			</if>
+			<if test="bindingTime != null and bindingTime != '' ">	<!-- 绑定时间 -->
+				AND TAD.BINDING_TIME = #{bindingTime}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 设备 -->
+				AND TAD.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAD.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAD.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AppDeviceEntity">
+    	INSERT INTO T_APP_DEVICE(
+    		
+			TID,
+			APP_ID,
+			APP_VERSION,
+			FK_APP_ACCOUNT_TID,
+			SN,
+			EQ_NAME,
+			EQ_STATUS,
+			MODEL_NO,
+			BINDING_TIME,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{appId},
+			#{appVersion},
+			#{fkAppAccountTid},
+			#{sn},
+			#{eqName},
+			#{eqStatus},
+			#{modelNo},
+			#{bindingTime},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AppDeviceEntity">
+	   UPDATE T_APP_DEVICE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="appId != null and appId != '' ">	<!-- 应用ID -->
+				,APP_ID = #{appId}
+			</if>
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 平台应用实例外键ID -->
+				,FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- 设备SN -->
+				,SN = #{sn}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				,EQ_NAME = #{eqName}
+			</if>
+			<if test="eqStatus != null ">	<!-- 设备状态 -->
+				,EQ_STATUS = #{eqStatus}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 型号 -->
+				,MODEL_NO = #{modelNo}
+			</if>
+			<if test="bindingTime != null and bindingTime != '' ">	<!-- 绑定时间 -->
+				,BINDING_TIME = #{bindingTime}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 设备 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_APP_DEVICE WHERE TID = #{value}
+    </delete>
+    
+    <select id="finDevice" parameterType="com.yw.common.beansUtils.entity.AppDeviceEntity" resultMap="resultMapAppDevice">  
+         SELECT 
+         
+         	<include refid="SELECT_PARAMS_APPDEVICE"/>
+         FROM T_APP_DEVICE TAD
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+				AND TAD.FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+		</trim>
+	</select>
+	
+	<!-- 更新设备状态 -->
+	<update id="updateBySN" parameterType="com.yw.common.beansUtils.entity.AppDeviceEntity">
+	   UPDATE T_APP_DEVICE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+				,EQ_STATUS = #{eqStatus}
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		SN = #{sn}
+	   </trim>
+    </update>
+</mapper>

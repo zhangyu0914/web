@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 可访问接口列表 -->
+<mapper namespace="com.yw.webplatform.mapper.AppAccountInterfaceEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppAccountInterfaceEntity" id="resultMapAppAccountInterface">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkAppAccountTid" column="FK_APP_ACCOUNT_TID"/>	<!-- 应用账号外键 -->
+		<result property="fkInterfaceTid" column="FK_INTERFACE_TID"/>	<!-- 接口外键 -->
+		<result property="checkUrl" column="CHECK_URL"/>	<!-- 检查域名 -->
+		<result property="checkIp" column="CHECK_IP"/>	<!-- 检查IP校验 -->
+		<result property="checkType" column="CHECK_TYPE"/>	<!-- 检查类型 -->
+		<result property="dataStatus" column="DATA_STATUS"/>	<!-- 状态 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="appName" column="APP_NAME"/>	
+		<result property="orgName" column="ORG_NAME"/>	
+		<result property="interfaceName" column="INTERFACE_NAME"/>
+		<result property="appVersion" column="APP_VERSION"/>  <!-- 应用版本号 -->
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APPACCOUNTINTERFACE">
+		
+		TAAI.TID,
+		TAAI.FK_APP_ACCOUNT_TID,
+		TAAI.FK_INTERFACE_TID,
+		TAAI.CHECK_URL,
+		TAAI.CHECK_IP,
+		TAAI.CHECK_TYPE,
+		TAAI.DATA_STATUS,
+		TAAI.REMARK,
+		TAAI.CREATE_TIME,
+		TAAI.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AppAccountInterfaceEntity" resultMap="resultMapAppAccountInterface">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPACCOUNTINTERFACE"/>,
+         	TA.APP_ID AS APP_ID,
+         	TA.APP_NAME AS APP_NAME,
+         	TA.APP_VERSION AS APP_VERSION,
+         	TOTO.ORG_NAME AS ORG_NAME,
+         	TI.INTERFACE_NAME AS INTERFACE_NAME
+         	
+         FROM T_APP_ACCOUNT_INTERFACE TAAI
+         LEFT JOIN T_APP_ACCOUNT TAA ON (TAAI.FK_APP_ACCOUNT_TID = TAA.TID)
+         LEFT JOIN T_APP TA ON (TAA.APP_ID = TA.APP_ID)
+         LEFT JOIN T_ORGANIZATION TOTO ON (TAA.FK_ORGANIZATION_TID = TOTO.TID)
+         LEFT JOIN T_INTERFACE TI ON (TAAI.FK_INTERFACE_TID = TI.TID)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAAI.TID = #{tid}
+			</if>
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 应用账号外键 -->
+				AND TAAI.FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="fkInterfaceTid != null and fkInterfaceTid != '' ">	<!-- 接口外键 -->
+				AND TAAI.FK_INTERFACE_TID = #{fkInterfaceTid}
+			</if>
+			<if test="checkUrl != null and checkUrl != '' ">	<!-- 检查域名 -->
+				AND TAAI.CHECK_URL = #{checkUrl}
+			</if>
+			<if test="checkIp != null and checkIp != '' ">	<!-- 检查IP校验 -->
+				AND TAAI.CHECK_IP = #{checkIp}
+			</if>
+			<if test="checkType != null ">	<!-- 检查类型 -->
+				AND TAAI.CHECK_TYPE = #{checkType}
+			</if>
+			<if test="dataStatus != null ">	<!-- 状态 -->
+				AND TAAI.DATA_STATUS = #{dataStatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TAAI.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAAI.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAAI.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="appId != null and appId != '' ">	<!--  -->
+				AND UPPER(TA.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appName != null and appName != '' ">	<!--  -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+			<if test="orgName != null and orgName != '' ">	<!--  -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+			<if test="interfaceName != null and interfaceName != '' ">	<!--  -->
+				AND UPPER(TI.INTERFACE_NAME) LIKE UPPER('%${interfaceName}%') 
+			</if>
+			
+			<if test="appLicenseTid != null and appLicenseTid != '' ">	<!--  -->
+				TI.TID = #{appLicenseTid} 
+			</if>
+         </trim>
+         ORDER BY TAAI.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AppAccountInterfaceEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP_ACCOUNT_INTERFACE TAAI
+         LEFT JOIN T_APP_ACCOUNT TAA ON (TAAI.FK_APP_ACCOUNT_TID = TAA.TID)
+         LEFT JOIN T_APP TA ON (TAA.APP_ID = TA.APP_ID)
+         LEFT JOIN T_ORGANIZATION TOTO ON (TAA.FK_ORGANIZATION_TID = TOTO.TID)
+         LEFT JOIN T_INTERFACE TI ON (TAAI.FK_INTERFACE_TID = TI.TID)
+         
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAAI.TID = #{tid}
+			</if>
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 应用账号外键 -->
+				AND TAAI.FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="fkInterfaceTid != null and fkInterfaceTid != '' ">	<!-- 接口外键 -->
+				AND TAAI.FK_INTERFACE_TID = #{fkInterfaceTid}
+			</if>
+			<if test="checkUrl != null and checkUrl != '' ">	<!-- 检查域名 -->
+				AND TAAI.CHECK_URL = #{checkUrl}
+			</if>
+			<if test="checkIp != null and checkIp != '' ">	<!-- 检查IP校验 -->
+				AND TAAI.CHECK_IP = #{checkIp}
+			</if>
+			<if test="checkType != null ">	<!-- 检查类型 -->
+				AND TAAI.CHECK_TYPE = #{checkType}
+			</if>
+			<if test="dataStatus != null ">	<!-- 状态 -->
+				AND TAAI.DATA_STATUS = #{dataStatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TAAI.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAAI.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAAI.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			
+			<if test="appId != null and appId != '' ">	<!--  -->
+				AND UPPER(TA.APP_ID) LIKE UPPER('%${appId}%') 
+			</if>
+			<if test="appName != null and appName != '' ">	<!--  -->
+				AND UPPER(TA.APP_NAME) LIKE UPPER('%${appName}%') 
+			</if>
+			<if test="orgName != null and orgName != '' ">	<!--  -->
+				AND UPPER(TOTO.ORG_NAME) LIKE UPPER('%${orgName}%') 
+			</if>
+			<if test="interfaceName != null and interfaceName != '' ">	<!--  -->
+				AND UPPER(TI.INTERFACE_NAME) LIKE UPPER('%${interfaceName}%') 
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AppAccountInterfaceEntity">
+    	INSERT INTO T_APP_ACCOUNT_INTERFACE(
+    		
+			TID,
+			FK_APP_ACCOUNT_TID,
+			FK_INTERFACE_TID,
+			CHECK_URL,
+			CHECK_IP,
+			CHECK_TYPE,
+			DATA_STATUS,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkAppAccountTid},
+			#{fkInterfaceTid},
+			#{checkUrl},
+			#{checkIp},
+			IFNULL(#{checkType},0),
+			IFNULL(#{dataStatus},0),
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AppAccountInterfaceEntity">
+	   UPDATE T_APP_ACCOUNT_INTERFACE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 应用账号外键 -->
+				,FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="fkInterfaceTid != null and fkInterfaceTid != '' ">	<!-- 接口外键 -->
+				,FK_INTERFACE_TID = #{fkInterfaceTid}
+			</if>
+			<if test="checkUrl != null and checkUrl != '' ">	<!-- 检查域名 -->
+				,CHECK_URL = #{checkUrl}
+			</if>
+			<if test="checkIp != null and checkIp != '' ">	<!-- 检查IP校验 -->
+				,CHECK_IP = #{checkIp}
+			</if>
+			<if test="checkType != null ">	<!-- 检查类型 -->
+				,CHECK_TYPE = #{checkType}
+			</if>
+			<if test="dataStatus != null ">	<!-- 状态 -->
+				,DATA_STATUS = #{dataStatus}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_APP_ACCOUNT_INTERFACE WHERE TID = #{value}
+    </delete>
+    
+    <!-- 查询一条数据 -->
+    <select id="findByFK" parameterType="com.yw.common.beansUtils.entity.AppAccountInterfaceEntity" resultMap="resultMapAppAccountInterface">
+    	 SELECT 
+         	<include refid="SELECT_PARAMS_APPACCOUNTINTERFACE"/>
+         FROM T_APP_ACCOUNT_INTERFACE TAAI
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="fkAppAccountTid != null and fkAppAccountTid != '' ">	<!-- 应用账号外键 -->
+				AND TAAI.FK_APP_ACCOUNT_TID = #{fkAppAccountTid}
+			</if>
+			<if test="fkInterfaceTid != null and fkInterfaceTid != '' ">	<!-- 接口外键 -->
+				AND TAAI.FK_INTERFACE_TID = #{fkInterfaceTid}
+			</if>
+			
+         </trim>
+    </select>
+</mapper>

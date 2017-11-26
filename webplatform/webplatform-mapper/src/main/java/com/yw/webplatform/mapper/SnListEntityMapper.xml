@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- SN列表 -->
+<mapper namespace="com.yw.webplatform.mapper.SnListEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.SnListEntity" id="resultMapSnList">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="deviceType" column="DEVICE_TYPE"/>	<!-- 设备类型 -->
+		<result property="eqName" column="EQ_NAME"/>	<!-- 设备名称 -->
+		<result property="eqType" column="EQ_TYPE"/>	<!-- 设备类型 -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 设备类型 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_SNLIST">
+		
+		TSL.TID,
+		TSL.DEVICE_TYPE,
+		TSL.EQ_NAME,
+		TSL.EQ_TYPE,
+		TSL.MODEL_NO,
+		TSL.CREATE_TIME,
+		TSL.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.SnListEntity" resultMap="resultMapSnList">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_SNLIST"/>
+         FROM T_SN_LIST TSL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TSL.TID = #{tid}
+			</if>
+			<if test="deviceType != null and deviceType != '' ">	<!-- 设备类型 -->
+				AND TSL.DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				AND TSL.EQ_NAME = #{eqName}
+			</if>
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				AND TSL.EQ_TYPE = #{eqType}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 设备类型 -->
+				AND TSL.MODEL_NO = #{modelNo}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TSL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TSL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TSL.CREATE_TIME DESC, TSL.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.SnListEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_SN_LIST TSL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TSL.TID = #{tid}
+			</if>
+			<if test="deviceType != null and deviceType != '' ">	<!-- 设备类型 -->
+				AND TSL.DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				AND TSL.EQ_NAME = #{eqName}
+			</if>
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				AND TSL.EQ_TYPE = #{eqType}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 设备类型 -->
+				AND TSL.MODEL_NO = #{modelNo}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TSL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TSL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.SnListEntity">
+    	INSERT INTO T_SN_LIST(
+    		
+			TID,
+			DEVICE_TYPE,
+			EQ_NAME,
+			EQ_TYPE,
+			MODEL_NO,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{deviceType},
+			#{eqName},
+			#{eqType},
+			#{modelNo},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.SnListEntity">
+	   UPDATE T_SN_LIST
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="deviceType != null and deviceType != '' ">	<!-- 设备类型 -->
+				,DEVICE_TYPE = #{deviceType}
+			</if>
+			<if test="eqName != null and eqName != '' ">	<!-- 设备名称 -->
+				,EQ_NAME = #{eqName}
+			</if>
+			<if test="eqType != null ">	<!-- 设备类型 -->
+				,EQ_TYPE = #{eqType}
+			</if>
+			<if test="modelNo != null and modelNo != '' ">	<!-- 设备类型 -->
+				,MODEL_NO = #{modelNo}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_SN_LIST WHERE TID = #{value}
+    </delete>
+</mapper>

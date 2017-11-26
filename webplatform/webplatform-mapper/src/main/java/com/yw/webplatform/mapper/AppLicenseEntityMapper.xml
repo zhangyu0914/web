@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 型号许可证表 -->
+<mapper namespace="com.yw.webplatform.mapper.AppLicenseEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AppLicenseEntity" id="resultMapAppLicense">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkLicenseTid" column="FK_LICENSE_TID"/>	<!-- 许可证外键ID -->
+		<result property="appId" column="APP_ID"/>	<!-- 应用ID -->
+		<result property="appIndex" column="APP_INDEX"/>	<!-- 应用索引 -->
+		<result property="appReportName" column="APP_REPORT_NAME"/>	<!--  -->
+		<result property="appInstanceLicId" column="APP_INSTANCE_LIC_ID"/>	<!-- App实例 -->
+		<result property="beginTime" column="BEGIN_TIME"/>	<!-- 开始日期 -->
+		<result property="endTime" column="END_TIME"/>	<!-- 结束日期 -->
+		<result property="maxInstance" column="MAX_INSTANCE"/>	<!-- 最大实例数 -->
+		<result property="appInstanceStatus" column="APP_INSTANCE_STATUS"/>	<!-- 应用实例状态 -->
+		<result property="icon" column="ICON"/>	<!--  -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="inputData" column="INPUT_DATA"/>	<!-- 输入数据 -->
+		<result property="outputData" column="OUTPUT_DATA"/>	<!-- 输出数据 -->
+		<result property="dateHour" column="DATE_HOUR"/>	<!-- 小时 -->
+		<result property="fkAppAccountTid" column="FK_APP_ACCOUNT_TID"/>	<!--  -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_APPLICENSE">
+		
+		TAL.TID,
+		TAL.FK_LICENSE_TID,
+		TAL.APP_ID,
+		TAL.APP_INDEX,
+		TAL.APP_REPORT_NAME,
+		TAL.APP_INSTANCE_LIC_ID,
+		TAL.BEGIN_TIME,
+		TAL.END_TIME,
+		TAL.MAX_INSTANCE,
+		TAL.APP_INSTANCE_STATUS,
+		TAL.ICON,
+		TAL.CREATE_TIME,
+		TAL.UPDATE_TIME
+
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_IODATA">
+		
+		TID.TID,
+		TID.DATA_CODE,
+		TID.DATA_VALUE,
+		TID.INPUT_DATA,
+		TID.OUTPUT_DATA,
+		TID.DATA_TIME,
+		TID.REAMRK,
+		TID.CREATE_TIME,
+		TID.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity" resultMap="resultMapAppLicense">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_APPLICENSE"/>
+         FROM T_APP_LICENSE TAL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAL.TID = #{tid}
+			</if>
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				AND TAL.FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND TAL.APP_ID = #{appId}
+			</if>
+			<if test="appInstanceLicId != null and appInstanceLicId != '' ">	<!-- App实例 -->
+				AND TAL.APP_INSTANCE_LIC_ID = #{appInstanceLicId}
+			</if>
+			<if test="beginTime != null and beginTime != '' ">	<!-- 开始日期 -->
+				AND TAL.BEGIN_TIME = #{beginTime}
+			</if>
+			<if test="endTime != null and endTime != '' ">	<!-- 结束日期 -->
+				AND TAL.END_TIME = #{endTime}
+			</if>
+			<if test="maxInstance != null ">	<!-- 最大实例数 -->
+				AND TAL.MAX_INSTANCE = #{maxInstance}
+			</if>
+			<if test="appReportName != null and appReportName != '' ">	<!-- 最大实例数 -->
+				AND TAL.APP_REPORT_NAME = #{appReportName}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TAL.CREATE_TIME ASC, TAL.APP_REPORT_NAME ASC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_APP_LICENSE TAL
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAL.TID = #{tid}
+			</if>
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				AND TAL.FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND TAL.APP_ID = #{appId}
+			</if>
+			<if test="appInstanceLicId != null and appInstanceLicId != '' ">	<!-- App实例 -->
+				AND TAL.APP_INSTANCE_LIC_ID = #{appInstanceLicId}
+			</if>
+			<if test="beginTime != null and beginTime != '' ">	<!-- 开始日期 -->
+				AND TAL.BEGIN_TIME = #{beginTime}
+			</if>
+			<if test="endTime != null and endTime != '' ">	<!-- 结束日期 -->
+				AND TAL.END_TIME = #{endTime}
+			</if>
+			<if test="maxInstance != null ">	<!-- 最大实例数 -->
+				AND TAL.MAX_INSTANCE = #{maxInstance}
+			</if>
+			<if test="appReportName != null and appReportName != '' ">	<!-- 最大实例数 -->
+				AND TAL.APP_REPORT_NAME = #{appReportName}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TAL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity">
+    	INSERT INTO T_APP_LICENSE(
+    		
+			TID,
+			FK_LICENSE_TID,
+			APP_ID,
+			APP_INDEX,
+			APP_REPORT_NAME,
+			APP_INSTANCE_LIC_ID,
+			BEGIN_TIME,
+			END_TIME,
+			MAX_INSTANCE,
+			APP_INSTANCE_STATUS,
+			ICON,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkLicenseTid},
+			#{appId},
+			#{appIndex},
+			#{appReportName},
+			#{appInstanceLicId},
+			#{beginTime},
+			#{endTime},
+			IFNULL(#{maxInstance},0),
+			IFNULL(#{appInstanceStatus},0),
+			#{icon},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity">
+	   UPDATE T_APP_LICENSE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				,FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				,APP_ID = #{appId}
+			</if>
+			<if test="appReportName != null and appReportName != '' ">	<!-- 应用报表名称 -->
+				,APP_REPORT_NAME = #{appReportName}
+			</if>
+			<if test="appInstanceLicId != null and appInstanceLicId != '' ">	<!-- App实例 -->
+				,APP_INSTANCE_LIC_ID = #{appInstanceLicId}
+			</if>
+			<if test="beginTime != null and beginTime != '' ">	<!-- 开始日期 -->
+				,BEGIN_TIME = #{beginTime}
+			</if>
+			<if test="endTime != null and endTime != '' ">	<!-- 结束日期 -->
+				,END_TIME = #{endTime}
+			</if>
+			<if test="maxInstance != null ">	<!-- 最大实例数 -->
+				,MAX_INSTANCE = #{maxInstance}
+			</if>
+			<if test="appInstanceStatus != null ">	<!-- 应用实例状态 -->
+				,APP_INSTANCE_STATUS = #{appInstanceStatus}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_APP_LICENSE WHERE TID = #{value}
+    </delete>
+    
+    <select id="findAppIO" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity" resultMap="resultMapAppLicense">  
+        SELECT 
+         
+         	SUM(TIO.INPUT_DATA) AS INPUT_DATA,
+         	SUM(TIO.OUTPUT_DATA) AS OUTPUT_DATA
+         	
+        FROM T_APP_LICENSE TAL
+		LEFT JOIN T_IO_DATA TIO ON (TAL.APP_INSTANCE_LIC_ID = TIO.DATA_VALUE)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			
+			<if test="appInstanceLicId != null ">	<!-- 应用许可证ID -->
+				AND TAL.APP_INSTANCE_LIC_ID = #{appInstanceLicId}
+			</if>
+			<if test="dataCode != null and dataCode != '' ">	<!-- 应用编码 -->
+				AND TIO.DATA_CODE = #{dataCode}
+			</if>
+         </trim>
+         ORDER BY TAL.CREATE_TIME DESC, TAL.TID
+    </select>
+    
+    <!-- 应用IO详情报表 -->
+    <select id="findAppDetailReport" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity" resultMap="resultMapAppLicense">  
+	     SELECT SUM(INPUT_DATA) AS INPUT_DATA, SUM(OUTPUT_DATA) AS OUTPUT_DATA, DATE_HOUR
+	    FROM(
+	        SELECT 
+	         
+	         	<include refid="SELECT_PARAMS_IODATA"/>,
+	         	DATE_FORMAT(DATA_TIME,'%H:00') AS DATE_HOUR
+	         	
+	        FROM T_IO_DATA TID
+	         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	        	
+	        	AND TID.DATA_CODE = #{dataCode}
+	        	AND TID.DATA_VALUE = #{appInstance} 
+	        	AND DATE_FORMAT(TID.DATA_TIME,'%Y%M%D') = DATE_FORMAT(SYSDATE(),'%Y%M%D')
+	
+	         </trim>
+	         ORDER BY TID.DATA_TIME ASC
+	        ) TT GROUP BY DATE_HOUR  
+    </select>
+    
+    <select id="findAppReport" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity" resultMap="resultMapAppLicense">
+	     SELECT 
+			<include refid="SELECT_PARAMS_APPLICENSE"/>,
+			TAA.TID AS FK_APP_ACCOUNT_TID
+		 FROM T_APP_LICENSE TAL
+		 LEFT JOIN T_APP_ACCOUNT TAA ON (TAL.TID = TAA.FK_APP_LICENSE_TID)
+		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	        
+	        <if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAL.TID = #{tid}
+			</if>
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				AND TAL.FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND TAL.APP_ID = #{appId}
+			</if>
+			<if test="appInstanceLicId != null and appInstanceLicId != '' ">	<!-- App实例 -->
+				AND TAL.APP_INSTANCE_LIC_ID = #{appInstanceLicId}
+			</if>	
+         </trim>
+         ORDER BY TAL.CREATE_TIME ASC, TAL.APP_REPORT_NAME ASC
+    </select>
+    <select id="getCountAppReport" parameterType="com.yw.common.beansUtils.entity.AppLicenseEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+        FROM T_APP_LICENSE TAL
+        LEFT JOIN T_APP_ACCOUNT TAA ON (TAL.TID = TAA.FK_APP_LICENSE_TID)
+		 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	        
+	        <if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TAL.TID = #{tid}
+			</if>
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				AND TAL.FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="appId != null and appId != '' ">	<!-- APPID -->
+				AND TAL.APP_ID = #{appId}
+			</if>
+			<if test="appInstanceLicId != null and appInstanceLicId != '' ">	<!-- App实例 -->
+				AND TAL.APP_INSTANCE_LIC_ID = #{appInstanceLicId}
+			</if>	
+         </trim>
+    </select>
+</mapper>

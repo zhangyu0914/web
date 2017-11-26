@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 接口 -->
+<mapper namespace="com.yw.webplatform.mapper.InterfaceEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.InterfaceEntity" id="resultMapInterface">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="interfaceName" column="INTERFACE_NAME"/>	<!-- 接口名称 -->
+		<result property="interfaceCode" column="INTERFACE_CODE"/>	<!-- 接口编码 -->
+		<result property="interfaceType" column="INTERFACE_TYPE"/>	<!-- 接口类型 -->
+		<result property="interfaceUrl" column="INTERFACE_URL"/>	<!-- 接口地址 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_INTERFACE">
+		
+		TI.TID,
+		TI.INTERFACE_NAME,
+		TI.INTERFACE_CODE,
+		TI.INTERFACE_TYPE,
+		TI.INTERFACE_URL,
+		TI.CREATE_TIME,
+		TI.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.InterfaceEntity" resultMap="resultMapInterface">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_INTERFACE"/>
+         FROM T_INTERFACE TI
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TI.TID = #{tid}
+			</if>
+			<if test="interfaceName != null and interfaceName != '' ">	<!-- 接口名称 -->
+				AND UPPER(TI.INTERFACE_NAME) LIKE UPPER('%${interfaceName}%')
+			</if>
+			<if test="interfaceCode != null and interfaceCode != '' ">	<!-- 接口编码 -->
+				AND TI.INTERFACE_CODE = #{interfaceCode}
+			</if>
+			<if test="interfaceType != null ">	<!-- 接口类型 -->
+				AND TI.INTERFACE_TYPE = #{interfaceType}
+			</if>
+			<if test="interfaceUrl != null and interfaceUrl != '' ">	<!-- 接口地址 -->
+				AND TI.INTERFACE_URL = #{interfaceUrl}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TI.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TI.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TI.CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.InterfaceEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_INTERFACE TI
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TI.TID = #{tid}
+			</if>
+			<if test="interfaceName != null and interfaceName != '' ">	<!-- 接口名称 -->
+				AND UPPER(TI.INTERFACE_NAME) LIKE UPPER('%${interfaceName}%')
+			</if>
+			<if test="interfaceCode != null and interfaceCode != '' ">	<!-- 接口编码 -->
+				AND TI.INTERFACE_CODE = #{interfaceCode}
+			</if>
+			<if test="interfaceType != null ">	<!-- 接口类型 -->
+				AND TI.INTERFACE_TYPE = #{interfaceType}
+			</if>
+			<if test="interfaceUrl != null and interfaceUrl != '' ">	<!-- 接口地址 -->
+				AND TI.INTERFACE_URL = #{interfaceUrl}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TI.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TI.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.InterfaceEntity">
+    	INSERT INTO T_INTERFACE(
+    		
+			TID,
+			INTERFACE_NAME,
+			INTERFACE_CODE,
+			INTERFACE_TYPE,
+			INTERFACE_URL,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{interfaceName},
+			#{interfaceCode},
+			IFNULL(#{interfaceType},0),
+			#{interfaceUrl},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.InterfaceEntity">
+	   UPDATE T_INTERFACE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="interfaceName != null and interfaceName != '' ">	<!-- 接口名称 -->
+				,INTERFACE_NAME = #{interfaceName}
+			</if>
+			<if test="interfaceCode != null and interfaceCode != '' ">	<!-- 接口编码 -->
+				,INTERFACE_CODE = #{interfaceCode}
+			</if>
+			<if test="interfaceType != null ">	<!-- 接口类型 -->
+				,INTERFACE_TYPE = #{interfaceType}
+			</if>
+			<if test="interfaceUrl != null and interfaceUrl != '' ">	<!-- 接口地址 -->
+				,INTERFACE_URL = #{interfaceUrl}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_INTERFACE WHERE TID = #{value}
+    </delete>
+    
+    <select id="getMaxCode" parameterType="com.yw.common.beansUtils.entity.InterfaceEntity" resultType="int">  
+        SELECT IFNULL(MAX(INTERFACE_CODE) + 1,'1001') AS MAX_CODE FROM T_INTERFACE TI ORDER BY INTERFACE_CODE DESC LIMIT 0,1
+    </select>
+    
+    <!-- 根据url查询 -->
+    <select id="findByURL" parameterType="com.yw.common.beansUtils.entity.InterfaceEntity" resultMap="resultMapInterface">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_INTERFACE"/>
+         FROM T_INTERFACE TI
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TI.TID != #{tid}
+			</if>
+			<if test="interfaceUrl != null and interfaceUrl != '' ">	<!-- 接口地址 -->
+				AND TI.INTERFACE_URL = #{interfaceUrl}
+			</if>
+
+         </trim>
+    </select>
+</mapper>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 属性表 -->
+<mapper namespace="com.yw.webplatform.mapper.AttributeEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.AttributeEntity" id="resultMapAttribute">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="profileId" column="PROFILE_ID"/>	<!-- PROFILE_ID -->
+		<result property="attName" column="ATT_NAME"/>	<!-- 属性名称 -->
+		<result property="attKey" column="ATT_KEY"/>	<!-- 属性键 -->
+		<result property="attType" column="ATT_TYPE"/>	<!-- 属性类型 -->
+		<result property="valueType" column="VALUE_TYPE"/>	<!-- 值类型 -->
+		<result property="valueDemand" column="VALUE_DEMAND"/>	<!-- 值要求 -->
+		<result property="valueRegex" column="VALUE_REGEX"/>	<!-- 正则规则 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		<!-- 多对多:得到属性的型号 -->
+		<collection property="modelList" column="TID"  select="findModelByAttId" 
+			javaType="java.util.ArrayList" ofType="com.yw.common.beansUtils.entity.ModelEntity"/>
+	</resultMap>
+
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ModelEntity" id="resultMapModel">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="modelName" column="MODEL_NAME"/>	<!-- 型号名称 -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- 型号 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+	</resultMap>
+	
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_ATTRIBUTE">
+		
+		TA.TID,
+		TA.PROFILE_ID,
+		TA.ATT_NAME,
+		TA.ATT_KEY,
+		TA.ATT_TYPE,
+		TA.VALUE_TYPE,
+		TA.VALUE_DEMAND,
+		TA.VALUE_REGEX,
+		TA.REMARK,
+		TA.CREATE_TIME,
+		TA.UPDATE_TIME
+
+	</sql>
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MODEL">
+		
+		TM.TID,
+		TM.MODEL_NAME,
+		TM.MODEL_NO,
+		TM.REMARK,
+		TM.CREATE_TIME,
+		TM.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.AttributeEntity" resultMap="resultMapAttribute">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_ATTRIBUTE"/>
+         FROM T_ATTRIBUTE TA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!-- PROFILE_ID -->
+				AND TA.PROFILE_ID = #{profileId}
+			</if>
+			<if test="attName != null and attName != '' ">	<!-- 属性名称 -->
+				AND UPPER(TA.ATT_NAME) LIKE UPPER('%${attName}%') 
+			</if>
+			<if test="attKey != null and attKey != '' ">	<!-- 属性key -->
+				AND TA.ATT_KEY = #{attKey}
+			</if>
+			<if test="attType != null and attType != '' ">	<!-- 属性类型 -->
+				AND TA.ATT_TYPE = #{attType}
+			</if>
+			<if test="valueType != null and valueType != '' ">	<!-- 值类型 -->
+				AND TA.VALUE_TYPE = #{valueType}
+			</if>
+			<if test="valueDemand != null and valueDemand != '' ">	<!-- 值要求 -->
+				AND TA.VALUE_DEMAND = #{valueDemand}
+			</if>
+			<if test="valueRegex != null and valueRegex != '' ">	<!-- 正则规则 -->
+				AND TA.VALUE_REGEX = #{valueRegex}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TA.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			<if test="id != null and id.length != 0">
+				AND TA.PROFILE_ID IN (
+					<foreach collection="id" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+        	</if>
+         </trim>
+         ORDER BY TA.CREATE_TIME DESC, TA.PROFILE_ID DESC
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.AttributeEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_ATTRIBUTE TA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TA.TID = #{tid}
+			</if>
+			<if test="profileId != null and profileId != '' ">	<!-- PROFILE_ID -->
+				AND TA.PROFILE_ID = #{profileId}
+			</if>
+			<if test="attName != null and attName != '' ">	<!-- 属性名称 -->
+				AND UPPER(TA.ATT_NAME) LIKE UPPER('%${attName}%') 
+			</if>
+			<if test="attKey != null and attKey != '' ">	<!-- 属性key -->
+				AND TA.ATT_KEY = #{attKey}
+			</if>
+			<if test="attType != null and attType != '' ">	<!-- 属性类型 -->
+				AND TA.ATT_TYPE = #{attType}
+			</if>
+			<if test="valueType != null and valueType != '' ">	<!-- 值类型 -->
+				AND TA.VALUE_TYPE = #{valueType}
+			</if>
+			<if test="valueDemand != null and valueDemand != '' ">	<!-- 值要求 -->
+				AND TA.VALUE_DEMAND = #{valueDemand}
+			</if>
+			<if test="valueRegex != null and valueRegex != '' ">	<!-- 正则规则 -->
+				AND TA.VALUE_REGEX = #{valueRegex}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TA.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TA.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TA.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+			<if test="id != null and id.length != 0">
+				AND TA.PROFILE_ID IN (
+					<foreach collection="id" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+        	</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.AttributeEntity">
+    	INSERT INTO T_ATTRIBUTE(
+    		
+			TID,
+			PROFILE_ID,
+			ATT_NAME,
+			ATT_KEY,
+			ATT_TYPE,
+			VALUE_TYPE,
+			VALUE_DEMAND,
+			VALUE_REGEX,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{profileId},
+			#{attName},
+			#{attKey},
+			#{attType},
+			#{valueType},
+			#{valueDemand},
+			#{valueRegex},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.AttributeEntity">
+	   UPDATE T_ATTRIBUTE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="profileId != null and profileId != '' ">	<!-- PROFILE_ID -->
+				,PROFILE_ID = #{profileId}
+			</if>
+			<if test="attName != null and attName != '' ">	<!-- 属性名称 -->
+				,ATT_NAME = #{attName}
+			</if>
+			<if test="attType != null and attType != '' ">	<!-- 属性类型 -->
+				,ATT_TYPE = #{attType}
+			</if>
+			<if test="attKey != null and attKey != '' ">	<!-- 属性key -->
+				,ATT_KEY = #{attKey}
+			</if>
+			<if test="valueType != null and valueType != '' ">	<!-- 值类型 -->
+				,VALUE_TYPE = #{valueType}
+			</if>
+			<if test="valueDemand != null and valueDemand != '' ">	<!-- 值要求 -->
+				,VALUE_DEMAND = #{valueDemand}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- LUA -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_ATTRIBUTE WHERE TID = #{value}
+    </delete>
+    
+    <!-- 得到属性的型号 -->
+   <select id="findModelByAttId" parameterType="java.lang.String" resultMap="resultMapModel">
+   	 SELECT 
+   	  <include refid="SELECT_PARAMS_MODEL"/>
+   	  FROM T_MODEL TM
+   	 <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   	TM.TID IN 
+		(
+			SELECT FK_MODEL_TID FROM T_MODEL_ATT WHERE PROFILE_ID = #{value}
+		)
+   	 </trim>
+   </select>
+   
+   <select id="findByProfileId" parameterType="com.yw.common.beansUtils.entity.AttributeEntity" resultMap="resultMapAttribute">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_ATTRIBUTE"/>
+         FROM T_ATTRIBUTE TA
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+         
+         	<if test="id != null and id.length != 0">
+				AND TA.PROFILE_ID IN (
+					<foreach collection="id" item="item" separator=",">
+						#{item}
+					</foreach>
+				)
+			</if>
+         </trim>
+    </select>
+</mapper>

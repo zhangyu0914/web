@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- SN许可证表 -->
+<mapper namespace="com.yw.webplatform.mapper.DeviceLicenseEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.DeviceLicenseEntity" id="resultMapDeviceLicense">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkLicenseTid" column="FK_LICENSE_TID"/>	<!-- 许可证外键ID -->
+		<result property="sn" column="SN"/>	<!-- SN -->
+		<result property="modelNo" column="MODEL_NO"/>	<!-- SN -->
+		<result property="beginTime" column="BEGIN_TIME"/>	<!-- 开始时间 -->
+		<result property="endTime" column="END_TIME"/>	<!-- 结束时间 -->
+		<result property="remark" column="REMARK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+		
+		<result property="modelName" column="MODEL_NAME"/>	<!--  -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_DEVICELICENSE">
+		
+		TDL.TID,
+		TDL.FK_LICENSE_TID,
+		TDL.SN,
+		TDL.MODEL_NO,
+		TDL.BEGIN_TIME,
+		TDL.END_TIME,
+		TDL.REMARK,
+		TDL.CREATE_TIME,
+		TDL.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.DeviceLicenseEntity" resultMap="resultMapDeviceLicense">  
+         SELECT 
+         
+         	<include refid="SELECT_PARAMS_DEVICELICENSE"/>,
+         	TM.MODEL_NAME
+         	
+         FROM T_DEVICE_LICENSE TDL
+         LEFT JOIN T_MODEL TM ON (TDL.MODEL_NO = TM.MODEL_NO)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TDL.TID = #{tid}
+			</if>
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				AND TDL.FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND TDL.SN = #{sn}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TDL.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TDL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TDL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TDL.CREATE_TIME DESC, TDL.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.DeviceLicenseEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_DEVICE_LICENSE TDL
+         LEFT JOIN T_MODEL TM ON (TDL.MODEL_NO = TM.MODEL_NO)
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TDL.TID = #{tid}
+			</if>
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				AND TDL.FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				AND TDL.SN = #{sn}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				AND TDL.REMARK = #{remark}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TDL.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TDL.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.DeviceLicenseEntity">
+    	INSERT INTO T_DEVICE_LICENSE(
+    		
+			TID,
+			FK_LICENSE_TID,
+			SN,
+			MODEL_NO,
+			BEGIN_TIME,
+			END_TIME,
+			REMARK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkLicenseTid},
+			#{sn},
+			#{modelNo},
+			#{beginTime},
+			#{endTime},
+			#{remark},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.DeviceLicenseEntity">
+	   UPDATE T_DEVICE_LICENSE
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkLicenseTid != null and fkLicenseTid != '' ">	<!-- 许可证外键ID -->
+				,FK_LICENSE_TID = #{fkLicenseTid}
+			</if>
+			<if test="sn != null and sn != '' ">	<!-- SN -->
+				,SN = #{sn}
+			</if>
+			<if test="remark != null and remark != '' ">	<!-- 备注 -->
+				,REMARK = #{remark}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_DEVICE_LICENSE WHERE TID = #{value}
+    </delete>
+</mapper>

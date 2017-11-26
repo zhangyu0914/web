@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- IO数据 -->
+<mapper namespace="com.yw.webplatform.mapper.IoDataEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.IoDataEntity" id="resultMapIoData">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="dataCode" column="DATA_CODE"/>	<!-- 数据编码 -->
+		<result property="dataValue" column="DATA_VALUE"/>	<!-- 数据值 -->
+		<result property="inputData" column="INPUT_DATA"/>	<!-- 输入数据 -->
+		<result property="outputData" column="OUTPUT_DATA"/>	<!-- 输出数据 -->
+		<result property="dataTime" column="DATA_TIME"/>	<!-- 数据时间 -->
+		<result property="reamrk" column="REAMRK"/>	<!-- 备注 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_IODATA">
+		
+		TID.TID,
+		TID.DATA_CODE,
+		TID.DATA_VALUE,
+		TID.INPUT_DATA,
+		TID.OUTPUT_DATA,
+		TID.DATA_TIME,
+		TID.REAMRK,
+		TID.CREATE_TIME,
+		TID.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.IoDataEntity" resultMap="resultMapIoData">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_IODATA"/>
+         FROM T_IO_DATA TID
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TID.TID = #{tid}
+			</if>
+			<if test="dataCode != null and dataCode != '' ">	<!-- 数据编码 -->
+				AND TID.DATA_CODE = #{dataCode}
+			</if>
+			<if test="dataValue != null and dataValue != '' ">	<!-- 数据值 -->
+				AND TID.DATA_VALUE = #{dataValue}
+			</if>
+			<if test="inputData != null ">	<!-- 输入数据 -->
+				AND TID.INPUT_DATA = #{inputData}
+			</if>
+			<if test="outputData != null ">	<!-- 输出数据 -->
+				AND TID.OUTPUT_DATA = #{outputData}
+			</if>
+			<if test="dataTime != null and dataTime != '' ">	<!-- 数据时间 -->
+				AND TID.DATA_TIME = #{dataTime}
+			</if>
+			<if test="reamrk != null and reamrk != '' ">	<!-- 备注 -->
+				AND TID.REAMRK = #{reamrk}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TID.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TID.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TID.CREATE_TIME DESC, TID.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.IoDataEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_IO_DATA TID
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TID.TID = #{tid}
+			</if>
+			<if test="dataCode != null and dataCode != '' ">	<!-- 数据编码 -->
+				AND TID.DATA_CODE = #{dataCode}
+			</if>
+			<if test="dataValue != null and dataValue != '' ">	<!-- 数据值 -->
+				AND TID.DATA_VALUE = #{dataValue}
+			</if>
+			<if test="inputData != null ">	<!-- 输入数据 -->
+				AND TID.INPUT_DATA = #{inputData}
+			</if>
+			<if test="outputData != null ">	<!-- 输出数据 -->
+				AND TID.OUTPUT_DATA = #{outputData}
+			</if>
+			<if test="dataTime != null and dataTime != '' ">	<!-- 数据时间 -->
+				AND TID.DATA_TIME = #{dataTime}
+			</if>
+			<if test="reamrk != null and reamrk != '' ">	<!-- 备注 -->
+				AND TID.REAMRK = #{reamrk}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TID.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TID.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.IoDataEntity">
+    	INSERT INTO T_IO_DATA(
+    		
+			TID,
+			DATA_CODE,
+			DATA_VALUE,
+			INPUT_DATA,
+			OUTPUT_DATA,
+			DATA_TIME,
+			REAMRK,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{dataCode},
+			#{dataValue},
+			IFNULL(#{inputData},0),
+			IFNULL(#{outputData},0),
+			#{dataTime},
+			#{reamrk},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.IoDataEntity">
+	   UPDATE T_IO_DATA
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="dataCode != null and dataCode != '' ">	<!-- 数据编码 -->
+				,DATA_CODE = #{dataCode}
+			</if>
+			<if test="dataValue != null and dataValue != '' ">	<!-- 数据值 -->
+				,DATA_VALUE = #{dataValue}
+			</if>
+			<if test="inputData != null ">	<!-- 输入数据 -->
+				,INPUT_DATA = #{inputData}
+			</if>
+			<if test="outputData != null ">	<!-- 输出数据 -->
+				,OUTPUT_DATA = #{outputData}
+			</if>
+			<if test="dataTime != null and dataTime != '' ">	<!-- 数据时间 -->
+				,DATA_TIME = #{dataTime}
+			</if>
+			<if test="reamrk != null and reamrk != '' ">	<!-- 备注 -->
+				,REAMRK = #{reamrk}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_IO_DATA WHERE TID = #{value}
+    </delete>
+</mapper>

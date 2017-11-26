@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE mapper 
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+
+<!-- 型号流程 -->
+<mapper namespace="com.yw.webplatform.mapper.ModelEpEntityMapper">
+	<!-- 映射为实体 -->
+	<resultMap type="com.yw.common.beansUtils.entity.ModelEpEntity" id="resultMapModelEp">
+		<id property="tid" column="TID"/>	<!-- 主键 -->
+		
+		<result property="fkModelTid" column="FK_MODEL_TID"/>	<!-- 型号 -->
+		<result property="propId" column="PROP_ID"/>	<!-- PROFILE_ID -->
+		<result property="ep" column="EP"/>	<!-- 流程 -->
+		<result property="epName" column="EP_NAME"/>	<!-- 流程名称 -->
+		<result property="unit" column="UNIT"/>	<!-- 单位 -->
+		<result property="precision" column="PRECISION"/>	<!-- 精度 -->
+		<result property="flows" column="FLOWS"/>	<!-- 支持操作 -->
+		<result property="createTime" column="CREATE_TIME"/>	<!-- 创建时间 -->
+		<result property="updateTime" column="UPDATE_TIME"/>	<!-- 更新时间 -->
+
+	</resultMap>
+
+	<!-- 查询条件 -->
+	<sql id="SELECT_PARAMS_MODELEP">
+		
+		TME.TID,
+		TME.FK_MODEL_TID,
+		TME.PROP_ID,
+		TME.EP,
+		TME.EP_NAME,
+		TME.UNIT,
+		TME.PRECISION,
+		TME.FLOWS,
+		TME.CREATE_TIME,
+		TME.UPDATE_TIME
+
+	</sql>
+	
+    <!-- 根据条件，查询多条数据 -->
+    <select id="findAll" parameterType="com.yw.common.beansUtils.entity.ModelEpEntity" resultMap="resultMapModelEp">  
+         SELECT 
+         	<include refid="SELECT_PARAMS_MODELEP"/>
+         FROM T_MODEL_EP TME
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TME.TID = #{tid}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号 -->
+				AND TME.FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="propId != null and propId != '' ">	<!-- PROFILE_ID -->
+				AND TME.PROP_ID = #{propId}
+			</if>
+			<if test="ep != null ">	<!-- 流程 -->
+				AND TME.EP = #{ep}
+			</if>
+			<if test="epName != null and epName != '' ">	<!-- 流程名称 -->
+				AND TME.EP_NAME = #{epName}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TME.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TME.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+         ORDER BY TME.CREATE_TIME DESC, TME.TID
+    </select>
+    
+    <!-- 根据条件，查询总条数 -->
+    <select id="getCount" parameterType="com.yw.common.beansUtils.entity.ModelEpEntity" resultType="int">  
+         SELECT 
+         	COUNT(1)
+         FROM T_MODEL_EP TME
+         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        	
+			<if test="tid != null and tid != '' ">	<!-- 主键 -->
+				AND TME.TID = #{tid}
+			</if>
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号 -->
+				AND TME.FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="propId != null and propId != '' ">	<!-- PROFILE_ID -->
+				AND TME.PROP_ID = #{propId}
+			</if>
+			<if test="ep != null ">	<!-- 流程 -->
+				AND TME.EP = #{ep}
+			</if>
+			<if test="epName != null and epName != '' ">	<!-- 流程名称 -->
+				AND TME.EP_NAME = #{epName}
+			</if>
+
+        	<if test="startSearchTime != null and startSearchTime != '' ">
+			 	AND TME.CREATE_TIME &gt;= #{startSearchTime}
+			</if>
+			<if test="endSearchTime != null and endSearchTime != '' ">
+			 	AND TME.CREATE_TIME &lt; #{endSearchTime}
+			</if>
+         </trim>
+    </select>
+
+	<!-- 添加 -->
+    <insert id="insert" parameterType="com.yw.common.beansUtils.entity.ModelEpEntity">
+    	INSERT INTO T_MODEL_EP(
+    		
+			TID,
+			FK_MODEL_TID,
+			PROP_ID,
+			EP,
+			EP_NAME,
+			UNIT,
+			`PRECISION`,
+			FLOWS,
+			CREATE_TIME,
+			UPDATE_TIME
+
+    	)
+    	VALUES(
+    		
+			#{tid},
+			#{fkModelTid},
+			#{propId},
+			#{ep},
+			#{epName},
+			#{unit},
+			#{precision},
+			#{flows},
+			SYSDATE(),
+			DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+
+    	)
+    </insert>
+    
+    <!-- 更新 -->
+    <update id="updateById" parameterType="com.yw.common.beansUtils.entity.ModelEpEntity">
+	   UPDATE T_MODEL_EP
+       <trim prefix="SET" prefixOverrides=",">
+       		UPDATE_TIME = DATE_FORMAT(SYSDATE(), '%Y%m%d%H%i%s')
+                          
+			<if test="fkModelTid != null and fkModelTid != '' ">	<!-- 型号 -->
+				,FK_MODEL_TID = #{fkModelTid}
+			</if>
+			<if test="propId != null and propId != '' ">	<!-- PROFILE_ID -->
+				,PROP_ID = #{propId}
+			</if>
+			<if test="ep != null ">	<!-- 流程 -->
+				,EP = #{ep}
+			</if>
+			<if test="epName != null and epName != '' ">	<!-- 流程名称 -->
+				,EP_NAME = #{epName}
+			</if>
+
+       </trim>
+	   <trim prefix="WHERE" prefixOverrides="AND |OR ">
+	   		TID = #{tid}
+	   </trim>
+    </update>
+    
+    <!-- 删除 -->
+    <delete id="delete" parameterType="java.lang.String">
+    	DELETE FROM T_MODEL_EP WHERE TID = #{value}
+    </delete>
+</mapper>
